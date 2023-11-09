@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use GuzzleHttp\Client;
-use LINE\Clients\MessagingApi\Configuration;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ReplyMessageRequest;
 use LINE\Clients\MessagingApi\Model\TextMessage;
