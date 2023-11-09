@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use GuzzleHttp\Client;
+use LINE\Clients\MessagingApi\Configuration;
+use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +14,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(MessagingApiApi::class, function ($app) {
+            $client = new Client();
+            $config = new Configuration();
+            $config->setAccessToken(config('line.channel_access_token'));
+
+            return new MessagingApiApi(
+                client: $client,
+                config: $config,
+            );
+        });
     }
 
     /**
