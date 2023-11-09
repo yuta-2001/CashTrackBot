@@ -2,21 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\EventHandler\Line\FollowEventHandler;
 use App\Http\Controllers\Controller;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
-use LINE\Clients\MessagingApi\Model\ReplyMessageRequest;
-use LINE\Clients\MessagingApi\Model\TextMessage;
 use LINE\Constants\HTTPHeader;
 use LINE\Parser\EventRequestParser;
 use LINE\Parser\Exception\InvalidEventRequestException;
 use LINE\Parser\Exception\InvalidSignatureException;
-use LINE\Webhook\Model\MessageEvent;
-use LINE\Webhook\Model\TextMessageContent;
+use LINE\Webhook\Model\FollowEvent;
 use Illuminate\Http\Request;
 
 class LineBotController extends Controller
 {
     /**
+     * LINEプラットフォームからのリクエストを受け取り適切なリプライを返却する。
+     * このメソッドはLINEプラットフォームからのリクエストを受け取り、ハンドラーに処理を委譲する。
+     * 
      * @param MessagingApiApi $bot
      * @param Request $request
      */
@@ -38,29 +39,26 @@ class LineBotController extends Controller
         }
 
         foreach ($parsedEvents->getEvents() as $event) {
-            $reply_token = $event->getReplyToken();
-    
-            switch (true){
-                // メッセージイベント
-                case $event instanceof MessageEvent:
-                    $message = $event->getMessage();
 
-                    if ($message instanceof TextMessageContent) {
-                        $replyText = $message->getText();
-                        $bot->replyMessage(new ReplyMessageRequest([
-                            'replyToken' => $reply_token,
-                            'messages' => [
-                                (new TextMessage(['text' => $replyText]))->setType('text'),
-                            ],
-                        ]));
-                    }
+            $handler = null;
+            switch (true) {
+                // フォローイベント
+                case $event instanceof FollowEvent:
+                    $handler = new FollowEventHandler($bot, $event);
+                    break;
 
+                // アンフォローイベント
+                case $event instanceof UnfollowEvent:
+                    // $handler = '';
                     break;
 
                 default:
                     // $body = $event->getEventBody();
             }
-        }
 
+            if ($handler !== null) {
+                $handler->handle();
+            }
+        }
     }
 }
