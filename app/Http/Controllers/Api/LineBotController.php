@@ -21,25 +21,15 @@ class LineBotController extends Controller
     /**
      * @param MessagingApiApi $bot
      * @param Request $request
-     * 
      */
-    public function callback(Request $request)
+    public function callback(MessagingApiApi $bot, Request $request)
     {
-        $client = new Client();
-        $config = new Configuration();
-        $config->setAccessToken(config('line.channel_access_token'));
-        $bot = new MessagingApiApi(
-            client: $client,
-            config: $config,
-        );
-
         $signature = $request->header(HTTPHeader::LINE_SIGNATURE);
 
         if (empty($signature)) {
             return response('Bad Request', 400);
         }
 
-        // Check request with signature and parse request
         try {
             $secret = config('line.channel_secret');
             $parsedEvents = EventRequestParser::parseEventRequest($request->getContent(), $secret, $signature);
