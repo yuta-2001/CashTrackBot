@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\EventHandler\Line\FollowEventHandler;
+use App\EventHandler\Line\UnFollowEventHandler;
 use App\Http\Controllers\Controller;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Constants\HTTPHeader;
@@ -49,7 +50,7 @@ class LineBotController extends Controller
 
                 // アンフォローイベント
                 case $event instanceof UnfollowEvent:
-                    // $handler = '';
+                    $handler = new UnFollowEventHandler($bot, $event);
                     break;
 
                 default:
