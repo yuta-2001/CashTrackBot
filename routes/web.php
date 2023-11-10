@@ -24,4 +24,5 @@ Route::group([
     'as' => 'liff.',
 ], function () {
     Route::get('/opponent/create', [LineLiffController::class, 'showOpponentCreateScreen'])->name('opponent.create');
+    Route::post('/opponent/create', [LineLiffController::class, 'createOpponent'])->name('opponent.create');
 });

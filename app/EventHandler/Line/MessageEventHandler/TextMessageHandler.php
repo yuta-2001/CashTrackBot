@@ -9,6 +9,7 @@ use LINE\Clients\MessagingApi\Model\Message;
 use LINE\Clients\MessagingApi\Model\PostbackAction;
 use LINE\Clients\MessagingApi\Model\ReplyMessageRequest;
 use LINE\Clients\MessagingApi\Model\TemplateMessage;
+use LINE\Clients\MessagingApi\Model\URIAction;
 use LINE\Constants\ActionType;
 use LINE\Constants\MessageType;
 use LINE\Constants\TemplateType;
@@ -48,10 +49,10 @@ class TextMessageHandler implements EventHandler
                                 'label' => '相手一覧',
                                 'data' => 'action=partner_list',
                             ]),
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
+                            new URIAction([
+                                'type' => ActionType::URI,
                                 'label' => '新規作成',
-                                'data' => 'action=partner_create',
+                                'uri' => config('line.liff_urls.opponent_create'),
                             ]),
                             new PostbackAction([
                                 'type' => ActionType::POSTBACK,
