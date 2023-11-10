@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LineLiffController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +16,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+// LIFFアプリケーションURL
+Route::group([
+    'prefix' => 'liff',
+    'as' => 'liff.',
+], function () {
+    Route::get('/opponent/create', [LineLiffController::class, 'showOpponentCreateScreen'])->name('opponent.create');
 });
