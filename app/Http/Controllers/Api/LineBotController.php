@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\EventHandler\Line\FollowEventHandler;
+use App\EventHandler\Line\MessageEventHandler\TextMessageHandler;
 use App\EventHandler\Line\UnFollowEventHandler;
 use App\Http\Controllers\Controller;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
@@ -11,6 +12,9 @@ use LINE\Parser\EventRequestParser;
 use LINE\Parser\Exception\InvalidEventRequestException;
 use LINE\Parser\Exception\InvalidSignatureException;
 use LINE\Webhook\Model\FollowEvent;
+use LINE\Webhook\Model\MessageEvent;
+use LINE\Webhook\Model\TextMessageContent;
+use LINE\Webhook\Model\UnfollowEvent;
 use Illuminate\Http\Request;
 
 class LineBotController extends Controller
@@ -52,6 +56,13 @@ class LineBotController extends Controller
                 case $event instanceof UnfollowEvent:
                     $handler = new UnFollowEventHandler($bot, $event);
                     break;
+
+                // メッセージイベント
+                case $event instanceof MessageEvent:
+                    $message = $event->getMessage();
+                    if ($message instanceof TextMessageContent) {
+                        $handler = new TextMessageHandler($bot, $event);
+                    }
 
                 default:
                     // $body = $event->getEventBody();

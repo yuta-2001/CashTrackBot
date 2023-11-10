@@ -20,7 +20,8 @@ class UnFollowEventHandler implements EventHandler
 
     public function handle()
     {
-        $userId = $this->event->getSource()['userId'];
+        $source = $this->event->getSource();
+        $userId = $source->getUserId();
 
         User::where('line_user_id', $userId)->delete();
 
