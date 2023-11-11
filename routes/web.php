@@ -23,6 +23,6 @@ Route::group([
     'prefix' => 'liff',
     'as' => 'liff.',
 ], function () {
-    Route::get('/opponent/create', [LineLiffController::class, 'showOpponentCreateScreen'])->name('opponent.create');
-    Route::post('/opponent/create', [LineLiffController::class, 'createOpponent'])->name('opponent.create');
+    Route::get('/opponent/create', [LineLiffController::class, 'showOpponentCreateScreen'])->name('opponent.createScreen');
+    Route::post('/opponent/create', [LineLiffController::class, 'createOpponent'])->name('opponent.store');
 });
