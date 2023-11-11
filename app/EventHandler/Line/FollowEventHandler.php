@@ -23,7 +23,8 @@ class FollowEventHandler implements EventHandler
 
     public function handle()
     {
-        $userId = $this->event->getSource()['userId'];
+        $source = $this->event->getSource();
+        $userId = $source->getUserId();
 
         User::create([
             'line_user_id' => $userId,

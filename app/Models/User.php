@@ -17,4 +17,9 @@ class User extends Model
         'name',
         'line_user_id',
     ];
+
+    public function opponents(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Opponent::class);
+    }
 }
