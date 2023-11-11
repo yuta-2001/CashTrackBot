@@ -5,14 +5,11 @@ namespace App\EventHandler\Line;
 use App\EventHandler\EventHandler;
 use App\Models\User;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
-use LINE\Clients\MessagingApi\Model\ReplyMessageRequest;
-use LINE\Clients\MessagingApi\Model\TextMessage;
-use LINE\Constants\MessageType;
 use LINE\Webhook\Model\FollowEvent;
 
-class FollowEventHandler implements EventHandler
+class FollowEventHandler extends LineBaseEventHandler implements EventHandler
 {
-    private $bot;
+    protected $bot;
     private $event;
 
     public function __construct(MessagingApiApi $bot, FollowEvent $event)
@@ -30,16 +27,6 @@ class FollowEventHandler implements EventHandler
             'line_user_id' => $userId,
         ]);
 
-        $request = new ReplyMessageRequest([
-            'replyToken' => $this->event->getReplyToken(),
-            'messages' => [
-                new TextMessage([
-                    'type' => MessageType::TEXT,
-                    'text' => '友達追加ありがとう！'
-                ]),
-            ],
-        ]);
-
-        $this->bot->replyMessage($request);
+        $this->replyText($this->event->getReplyToken(), '友達追加ありがとう！');
     }
 }
