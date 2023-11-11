@@ -59,6 +59,42 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
 
                 $this->replyMessage($replyToken, $templateMessage);
                 break;
+
+            case '使い方':
+                $templateMessage = new TemplateMessage([
+                    'type' => MessageType::TEMPLATE,
+                    'altText' => '使い方メニュー',
+                    'template' => new ButtonsTemplate([
+                        'type' => TemplateType::BUTTONS,
+                        'title' => '使い方メニュー',
+                        'text' => 'メニューを選択してください。',
+                        'actions' => [
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => config('line.explanation.overview.title'),
+                                'data' => 'action_type=explanation&method=overview',
+                            ]),
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => config('line.explanation.how_to_manage_lending_and_borrowing.title'),
+                                'data' => 'action_type=explanation&method=how_to_manage_lending_and_borrowing',
+                            ]),
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => config('line.explanation.how_to_manage_opponent.title'),
+                                'data' => 'action_type=explanation&method=how_to_manage_opponent',
+                            ]),
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => config('line.explanation.caution.title'),
+                                'data' => 'action_type=explanation&method=caution',
+                            ]),
+                        ],
+                    ]),
+                ]);
+
+                $this->replyMessage($replyToken, $templateMessage);
+                break;
         }
     }
 }
