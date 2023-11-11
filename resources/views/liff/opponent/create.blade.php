@@ -105,7 +105,7 @@
             let line_user_id = '';
 
             document.addEventListener("DOMContentLoaded", function() {
-                liff.init({ liffId: "2001594025-KAJQ8ENE" })
+                liff.init({ liffId: liffId })
                     .then(() => {
                         console.log("Success! you can do something with LIFF API here.")
 

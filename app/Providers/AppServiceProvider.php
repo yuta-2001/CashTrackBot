@@ -14,6 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // 環境でHTTPSを強制する
+        \URL::forceScheme('https');
+
         $this->app->singleton(MessagingApiApi::class, function ($app) {
             $client = new Client();
             $config = new Configuration();

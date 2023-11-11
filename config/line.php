@@ -9,6 +9,6 @@ return [
     ],
 
     'liff_ids' => [
-        'opponent_create' => env('LIFF_OPPONENT_CREATE_ID'),
+        'opponent_create' => env('LIFF_OPPONENT_CREATE_LIFF_ID'),
     ],
 ];
