@@ -93,4 +93,16 @@ class LineLiffController extends Controller
             'message' => 'success',
         ], 200);
     }
+
+    public function showLendingAndBorrowingCreateScreen()
+    {
+        return view('liff.lending_and_borrowing.create');
+    }
+
+    public function createLendingAndBorrowing()
+    {
+        return response()->json([
+            'message' => 'success',
+        ], 200);
+    }
 }

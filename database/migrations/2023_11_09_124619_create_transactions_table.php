@@ -20,7 +20,7 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
             $table->boolean('is_settled')->default(false);
-            $table->boolean('is_borrower')->default(false);
+            $table->enum('type', ['lending', 'borrowing']);
             $table->string('name');
             $table->integer('amount');
             $table->string('memo')->nullable();
