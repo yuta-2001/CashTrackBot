@@ -3,11 +3,10 @@
 namespace App\EventHandler\Line\MessageEventHandler;
 
 use App\EventHandler\EventHandler;
+use App\EventHandler\Line\LineBaseEventHandler;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
-use LINE\Clients\MessagingApi\Model\Message;
 use LINE\Clients\MessagingApi\Model\PostbackAction;
-use LINE\Clients\MessagingApi\Model\ReplyMessageRequest;
 use LINE\Clients\MessagingApi\Model\TemplateMessage;
 use LINE\Clients\MessagingApi\Model\URIAction;
 use LINE\Constants\ActionType;
@@ -16,9 +15,9 @@ use LINE\Constants\TemplateType;
 use LINE\Webhook\Model\MessageEvent;
 
 
-class TextMessageHandler implements EventHandler
+class TextMessageHandler extends LineBaseEventHandler implements EventHandler
 {
-    private $bot;
+    protected $bot;
     private $event;
     private $textMessage;
 
@@ -60,21 +59,6 @@ class TextMessageHandler implements EventHandler
 
                 $this->replyMessage($replyToken, $templateMessage);
                 break;
-        }
-    }
-
-    private function replyMessage(string $replyToken, Message $message)
-    {
-        $request = new ReplyMessageRequest([
-            'replyToken' => $replyToken,
-            'messages' => [$message],
-        ]);
-
-        try {
-            $this->bot->replyMessage($request);
-        } catch (\LINE\Clients\MessagingApi\ApiException $e) {
-            \Log::error('BODY:' . $e->getResponseBody());
-            throw $e;
         }
     }
 }

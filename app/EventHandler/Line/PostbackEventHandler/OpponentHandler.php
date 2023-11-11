@@ -3,26 +3,24 @@
 namespace App\EventHandler\Line\PostbackEventHandler;
 
 use App\EventHandler\EventHandler;
+use App\EventHandler\Line\LineBaseEventHandler;
 use App\Models\Opponent;
 use App\Models\User;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\CarouselColumn;
 use LINE\Clients\MessagingApi\Model\CarouselTemplate;
-use LINE\Clients\MessagingApi\Model\Message;
 use LINE\Clients\MessagingApi\Model\PostbackAction;
-use LINE\Clients\MessagingApi\Model\ReplyMessageRequest;
 use LINE\Clients\MessagingApi\Model\TemplateMessage;
-use LINE\Clients\MessagingApi\Model\TextMessage;
 use LINE\Clients\MessagingApi\Model\URIAction;
 use LINE\Constants\ActionType;
 use LINE\Constants\MessageType;
 use LINE\Constants\TemplateType;
 use LINE\Webhook\Model\PostbackEvent;
 
-class OpponentHandler implements EventHandler
+class OpponentHandler extends LineBaseEventHandler implements EventHandler
 {
-    private $bot;
+    protected $bot;
     private $event;
     private $params;
 
@@ -143,28 +141,5 @@ class OpponentHandler implements EventHandler
             $opponent->delete();
             $this->replyText($replyToken, '相手を削除しました。');
         }
-    }
-
-
-    private function replyMessage(string $replyToken, Message $message)
-    {
-        $request = new ReplyMessageRequest([
-            'replyToken' => $replyToken,
-            'messages' => [$message],
-        ]);
-
-        try {
-            $this->bot->replyMessage($request);
-        } catch (\LINE\Clients\MessagingApi\ApiException $e) {
-            \Log::error('BODY:' . $e->getResponseBody());
-            throw $e;
-        }
-    }
-
-
-    private function replyText(string $replyToken, string $text)
-    {
-        $textMessage = (new TextMessage(['text' => $text, 'type' => MessageType::TEXT]));
-        return $this->replyMessage($replyToken, $textMessage);
     }
 }
