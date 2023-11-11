@@ -62,29 +62,30 @@ class PostbackEventHandler implements EventHandler
                     ]);
                 } else {
                     $items = [];
-                    $partners->each(function ($partner) {
+                    foreach ($partners as $partner) {
                         $item = new CarouselColumn([
-                                    'title' => $partner->name,
-                                    'actions' => [
-                                        new URIAction([
-                                            'type' => ActionType::URI,
-                                            'label' => '編集',
-                                            'uri' => 'https://line.me',
-                                        ]),
-                                        new PostbackAction([
-                                            'type' => ActionType::POSTBACK,
-                                            'label' => '削除',
-                                            'data' => 'action=partner_delete&itemid=' . $partner->id,
-                                        ]),
-                                        new PostbackAction([
-                                            'type' => ActionType::MESSAGE,
-                                            'label' => 'メニューに戻る',
-                                            'text' => '相手管理',
-                                        ]),
-                                    ],
-                                ]);
+                            'title' => $partner->name,
+                            'text' => '作成日' . $partner->created_at,
+                            'actions' => [
+                                new URIAction([
+                                    'type' => ActionType::URI,
+                                    'label' => '編集',
+                                    'uri' => 'https://line.me',
+                                ]),
+                                new PostbackAction([
+                                    'type' => ActionType::POSTBACK,
+                                    'label' => '削除',
+                                    'data' => 'action=partner_delete&itemid=' . $partner->id,
+                                ]),
+                                new PostbackAction([
+                                    'type' => ActionType::MESSAGE,
+                                    'label' => 'メニューに戻る',
+                                    'text' => '相手管理',
+                                ]),
+                            ],
+                        ]);
                         $items[] = $item;
-                    });
+                    }
 
                     $templateMessage = new TemplateMessage([
                         'type' => MessageType::TEMPLATE,
