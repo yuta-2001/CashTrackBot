@@ -146,6 +146,7 @@ class PostbackEventHandler implements EventHandler
             $this->replyText($replyToken, '相手を削除しました。');
         }
 
+
         // キャンセル
         if ($data === 'action=cancel') {
             $this->replyText($replyToken, 'アクションをキャンセルしました。');

@@ -41,4 +41,47 @@ class LineLiffController extends Controller
             'message' => 'success',
         ], 200);
     }
+
+    public function showOpponentEditScreen(Request $request)
+    {
+        $opponentId = $request->query('opponent_id');
+        $opponent = Opponent::find($opponentId);
+
+        if (!$opponent) {
+            return response()->json([
+                'message' => 'error',
+            ], 400);
+        }
+
+        return view('liff.opponent.edit');
+    }
+
+    public function updateOpponent(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $opponentId = $request->query('opponent_id');
+        $lineUserId = $request->input('line_user_id');
+        $name = $request->input('name');
+
+        if (empty($opponentId) || empty($name) || empty($lineUserId)) {
+            return response()->json([
+                'message' => 'error',
+            ], 400);
+        }
+
+        $user = User::where('line_user_id', $lineUserId)->first();
+        $opponent = Opponent::where('id', $opponentId)->where('user_id', $user->id)->first();
+
+        if (!$opponent) {
+            return response()->json([
+                'message' => 'error',
+            ], 400);
+        }
+
+        $opponent->name = $name;
+        $opponent->save();
+
+        return response()->json([
+            'message' => 'success',
+        ], 200);
+    }
 }
