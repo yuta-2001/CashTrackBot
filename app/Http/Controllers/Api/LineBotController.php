@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\EventHandler\Line\FollowEventHandler;
 use App\EventHandler\Line\MessageEventHandler\TextMessageHandler;
 use App\EventHandler\Line\PostbackEventHandler\CancelHandler;
+use App\EventHandler\Line\PostbackEventHandler\ExplainHandler;
 use App\EventHandler\Line\PostbackEventHandler\OpponentHandler;
 use App\EventHandler\Line\UnFollowEventHandler;
 use App\Http\Controllers\Controller;
@@ -75,6 +76,10 @@ class LineBotController extends Controller
                     parse_str($data, $params);
                     if ($params['action_type'] === 'opponent') {
                         $handler = new OpponentHandler($bot, $event, $params);
+                    }
+
+                    if ($params['action_type'] === 'explanation') {
+                        $handler = new ExplainHandler($bot, $event, $params);
                     }
 
                     if ($params['action_type'] === 'cancel') {
