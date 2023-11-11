@@ -77,7 +77,7 @@
     <body>
         <div>
             <h1>
-                新規作成
+                編集
             </h1>
     
             <form id="edit-opponent">
@@ -96,7 +96,7 @@
             </form>
         </div>
 
-        <input type="hidden" id="liff_id" value="{{ config('line.liff_ids.opponent_create') }}">
+        <input type="hidden" id="liff_id" value="{{ config('line.liff_ids.opponent_edit') }}">
         <input type="hidden" id="endpoint" value="{{ route('liff.opponent.update') }}">
         <input type="hidden" id="opponent_id" value="{{ $opponent->id }}">
 

@@ -72,12 +72,12 @@ class PostbackEventHandler implements EventHandler
                             new URIAction([
                                 'type' => ActionType::URI,
                                 'label' => '編集',
-                                'uri' => 'https://line.me',
+                                'uri' => config('line.liff_urls.opponent_edit') . '?itemId=' . $partner->id,
                             ]),
                             new PostbackAction([
                                 'type' => ActionType::POSTBACK,
                                 'label' => '削除',
-                                'data' => 'action=partner_delete_before_confirm&itemId=' . $partner->id,
+                                'data' => 'action=partner_delete_before_confirm?itemId=' . $partner->id,
                             ]),
                         ],
                     ]);
@@ -114,7 +114,7 @@ class PostbackEventHandler implements EventHandler
                         new PostbackAction([
                             'type' => ActionType::POSTBACK,
                             'label' => 'はい',
-                            'data' => 'action=partner_delete_confirmed&itemId=' . $opponentId,
+                            'data' => 'action=partner_delete_confirmed?itemId=' . $opponentId,
                         ]),
                         new PostbackAction([
                             'type' => ActionType::POSTBACK,

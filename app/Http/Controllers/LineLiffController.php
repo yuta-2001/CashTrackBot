@@ -44,7 +44,16 @@ class LineLiffController extends Controller
 
     public function showOpponentEditScreen(Request $request)
     {
-        $opponentId = $request->query('opponent_id');
+        if ($request->has('liff_state')) {
+            $queryInfo = $request->query('liff_state');
+            parse_str(ltrim($queryInfo, '?'), $params);
+            $opponentId = $params['itemId'] ?? null;
+        }
+
+        if ($request->has('itemId')) {
+            $opponentId = $request->query('itemId');
+        }
+
         $opponent = Opponent::find($opponentId);
 
         if (!$opponent) {
@@ -53,12 +62,12 @@ class LineLiffController extends Controller
             ], 400);
         }
 
-        return view('liff.opponent.edit');
+        return view('liff.opponent.edit', compact('opponent'));
     }
 
     public function updateOpponent(Request $request): \Illuminate\Http\JsonResponse
     {
-        $opponentId = $request->query('opponent_id');
+        $opponentId = $request->query('opponentId');
         $lineUserId = $request->input('line_user_id');
         $name = $request->input('name');
 
