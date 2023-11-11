@@ -1,6 +1,6 @@
 <?php
 
-namespace App\EventHandler\Line;
+namespace App\EventHandler\Line\PostbackEventHandler;
 
 use App\EventHandler\EventHandler;
 use App\Models\Opponent;
@@ -20,28 +20,28 @@ use LINE\Constants\MessageType;
 use LINE\Constants\TemplateType;
 use LINE\Webhook\Model\PostbackEvent;
 
-class PostbackEventHandler implements EventHandler
+class OpponentHandler implements EventHandler
 {
     private $bot;
     private $event;
+    private $params;
 
-    public function __construct(MessagingApiApi $bot, PostbackEvent $event)
+    public function __construct(MessagingApiApi $bot, PostbackEvent $event, array $params)
     {
         $this->bot = $bot;
         $this->event = $event;
+        $this->params = $params;
     }
 
 
     public function handle()
     {
-        $postback = $this->event->getPostback();
-        $data = $postback->getData();
         $replyToken = $this->event->getReplyToken();
         $source = $this->event->getSource();
         $userId = $source->getUserId();
 
         // 相手の一覧を表示する
-        if ($data === 'action=partner_list') {
+        if ($this->params['method'] === 'get_list') {
             $user = User::with('opponents')->where('line_user_id', $userId)->first();
             $partners = $user->opponents;
 
@@ -77,7 +77,7 @@ class PostbackEventHandler implements EventHandler
                             new PostbackAction([
                                 'type' => ActionType::POSTBACK,
                                 'label' => '削除',
-                                'data' => 'action=partner_delete_before_confirm?itemId=' . $partner->id,
+                                'data' => 'action_type=opponent&method=delete_confirmation&item_id=' . $partner->id,
                             ]),
                         ],
                     ]);
@@ -99,9 +99,8 @@ class PostbackEventHandler implements EventHandler
 
 
         // 相手の削除を確認する
-        if (str_starts_with($data, 'action=partner_delete_before_confirm')) {
-            parse_str($data, $params);
-            $opponentId = $params['itemId'] ?? null;
+        if ($this->params['method'] === 'delete_confirmation') {
+            $opponentId = $this->params['item_id'] ?? null;
 
             $templateMessage = new TemplateMessage([
                 'type' => MessageType::TEMPLATE,
@@ -114,12 +113,12 @@ class PostbackEventHandler implements EventHandler
                         new PostbackAction([
                             'type' => ActionType::POSTBACK,
                             'label' => 'はい',
-                            'data' => 'action=partner_delete_confirmed?itemId=' . $opponentId,
+                            'data' => 'action_type=opponent&method=delete_confirmed&item_id=' . $opponentId,
                         ]),
                         new PostbackAction([
                             'type' => ActionType::POSTBACK,
                             'label' => 'キャンセル',
-                            'data' => 'action=cancel',
+                            'data' => 'action_type=cancel',
                         ]),
                     ],
                 ]),
@@ -130,9 +129,8 @@ class PostbackEventHandler implements EventHandler
 
 
         // 相手の削除を実行する
-        if (str_starts_with($data, 'action=partner_delete_confirmed')) {
-            parse_str($data, $params);
-            $opponentId = $params['itemId'] ?? null;
+        if ($this->params['method'] === 'delete_confirmed') {
+            $opponentId = $this->params['item_id'] ?? null;
 
             $user = User::with('opponents')->where('line_user_id', $userId)->first();
             $opponent = Opponent::where('id', $opponentId)->where('user_id', $user->id)->first();
@@ -144,12 +142,6 @@ class PostbackEventHandler implements EventHandler
 
             $opponent->delete();
             $this->replyText($replyToken, '相手を削除しました。');
-        }
-
-
-        // キャンセル
-        if ($data === 'action=cancel') {
-            $this->replyText($replyToken, 'アクションをキャンセルしました。');
         }
     }
 

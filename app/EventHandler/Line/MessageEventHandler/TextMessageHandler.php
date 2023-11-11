@@ -47,17 +47,12 @@ class TextMessageHandler implements EventHandler
                             new PostbackAction([
                                 'type' => ActionType::POSTBACK,
                                 'label' => '相手一覧',
-                                'data' => 'action=partner_list',
+                                'data' => 'action_type=opponent&method=get_list',
                             ]),
                             new URIAction([
                                 'type' => ActionType::URI,
                                 'label' => '新規作成',
                                 'uri' => config('line.liff_urls.opponent_create'),
-                            ]),
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
-                                'label' => 'キャンセル',
-                                'data' => 'action=cancel',
                             ]),
                         ],
                     ]),

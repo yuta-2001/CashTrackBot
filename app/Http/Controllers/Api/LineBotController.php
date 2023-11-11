@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\EventHandler\Line\FollowEventHandler;
 use App\EventHandler\Line\MessageEventHandler\TextMessageHandler;
-use App\EventHandler\Line\PostbackEventHandler;
+use App\EventHandler\Line\PostbackEventHandler\CancelHandler;
+use App\EventHandler\Line\PostbackEventHandler\OpponentHandler;
 use App\EventHandler\Line\UnFollowEventHandler;
 use App\Http\Controllers\Controller;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
@@ -69,9 +70,18 @@ class LineBotController extends Controller
 
                 // テンプレートメニューをクリックした時に発火する
                 case $event instanceof PostbackEvent:
-                    $handler = new PostbackEventHandler($bot, $event);
-                    break;
+                    $postback = $event->getPostback();
+                    $data = $postback->getData();
+                    parse_str($data, $params);
+                    if ($params['action_type'] === 'opponent') {
+                        $handler = new OpponentHandler($bot, $event, $params);
+                    }
 
+                    if ($params['action_type'] === 'cancel') {
+                        $handler = new CancelHandler($bot, $event);
+                    }
+
+                    break;
                 default:
                     // $body = $event->getEventBody();
             }
