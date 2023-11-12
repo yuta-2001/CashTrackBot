@@ -115,6 +115,7 @@ class LineLiffController extends Controller
 
     public function createLendingAndBorrowing(Request $request)
     {
+        \Log::debug($request->all());
         $lineUserId = $request->input('line_user_id');
         $opponentId = $request->input('opponent_id');
         $settled = (int)$request->input('settled');
@@ -123,7 +124,16 @@ class LineLiffController extends Controller
         $name = $request->input('name');
         $memo = $request->input('memo');
 
-        if (empty($lineUserId) || empty($opponentId) || empty($amount) || empty($type) || empty($settled) || empty($name)) {
+        \Log::debug('から判定前');
+        if (empty($lineUserId) ||
+            empty($opponentId) || 
+            empty($amount) || 
+            empty($type) || 
+            !isset($settled) || 
+            $settled === '' ||
+            $settled === null || 
+            empty($name)
+        ) {
             return response()->json([
                 'message' => 'error',
             ], 400);

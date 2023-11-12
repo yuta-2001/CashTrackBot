@@ -115,7 +115,7 @@
                         <option value="{{ $opponent->id }}">{{ $opponent->name }}</option>
                     @endforeach
                 </select>
-                <label id="is_settled">清算(必須)</label>
+                <label for="is_settled">清算(必須)</label>
                 <select id="is_settled">
                     <option value="0">未清算</option>
                     <option value="1">清算済み</option>
@@ -210,8 +210,8 @@
                         name: name,
                         line_user_id: line_user_id,
                         type: type,
-                        opponent_id: opponent_id,
-                        settled: settled,
+                        opponent_id: opponentId,
+                        settled: isSettled,
                         amount: amount,
                         memo: memo,
                     })
