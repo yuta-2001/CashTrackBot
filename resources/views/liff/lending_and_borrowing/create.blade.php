@@ -6,7 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta http-equiv="Cache-Control" content="no-cache">
 
-        <title>貸借り管理BOT | 相手新規作成</title>
+        <title>貸借り管理BOT | 貸借り新規作成</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -46,7 +46,8 @@
                 font-size: 18px;
             }
     
-            input[type="text"] {
+            input[type="text"],
+            input[type="int"] {
                 display: block;
                 width: 100%;
                 padding: 10px;
@@ -55,6 +56,20 @@
                 border: 1px solid #ddd;
                 border-radius: 5px;
                 font-size: 16px;
+            }
+
+            select {
+                width: 100%;
+                padding: 10px;
+                box-sizing:border-box;
+                margin-bottom: 20px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                color: #555;
+                background-color: #fff;
+                font-size: 16px;
+
+                -webkit-appearance: none;
             }
     
             button {
@@ -80,14 +95,45 @@
                 新規作成
             </h1>
     
-            <form id="create-opponent">
-                <label for="name">名前</label>
+            <form id="create-lending-borrowing">
+                <label for="name">項目名(必須)</label>
                 <input 
                     type="text" 
                     id="name" 
                     name="name"
-                    placeholder="相手の名前を入力"
+                    placeholder="項目名を入力"
                     required
+                />
+                <label for="type">種別(必須)</label>
+                <select id="type">
+                    <option value="1">貸し</option>
+                    <option value="2">借り</option>
+                </select>
+                <label for="opponent">相手(必須)</label>
+                <select id="opponent">
+                    @foreach($opponents as $opponent)
+                        <option value="{{ $opponent->id }}">{{ $opponent->name }}</option>
+                    @endforeach
+                </select>
+                <label for="is_settled">清算(必須)</label>
+                <select id="is_settled">
+                    <option value="0">未清算</option>
+                    <option value="1">清算済み</option>
+                </select>
+                <label for="amount">金額(数値・必須)</label>
+                <input 
+                    type="int" 
+                    id="amount" 
+                    name="amount"
+                    placeholder="金額を入力"
+                    required
+                />
+                <label for="memo">メモ</label>
+                <input 
+                    type="text" 
+                    id="memo" 
+                    name="memo"
+                    placeholder="メモを入力"
                 />
                 <button type="submit">
                     作成
@@ -95,13 +141,14 @@
             </form>
         </div>
 
-        <input type="hidden" id="liff_id" value="{{ config('line.liff_ids.opponent_create') }}">
-        <input type="hidden" id="endpoint" value="{{ route('liff.opponent.store') }}">
+        <input type="hidden" id="liff_id" value="{{ config('line.liff_ids.lending_and_borrowing_create') }}">
+        <input type="hidden" id="endpoint" value="{{ route('liff.lendingAndBorrowing.store') }}">
 
         <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
         <script type="text/javascript">
             const endpoint = document.getElementById('endpoint').value;
             const liffId = document.getElementById('liff_id').value;
+
             let line_user_id = '';
 
             document.addEventListener("DOMContentLoaded", function() {
@@ -110,35 +157,48 @@
                         console.log("Success! you can do something with LIFF API here.")
 
                         // 本番環境はこちらを使用
-                        if (!liff.isInClient() || !liff.getFriendship()) {
-                            liff.closeWindow();
-                        }
-
-                        // ブラウザでの動作確認時にのみ使用
-                        // if (!liff.isLoggedIn()) {
-                        //     liff.login();
+                        // if (!liff.isInClient() || !liff.getFriendship()) {
+                        //     liff.closeWindow();
                         // }
 
+                        // ブラウザでの動作確認時にのみ使用
+                        if (!liff.isLoggedIn()) {
+                            liff.login();
+                        }
+                    })
+                    .then(() => {
                         liff.getProfile()
                             .then(profile => {
                                 line_user_id = profile.userId;
+
+                                const params = (new URL(document.location)).searchParams;
+                                const queryLineUserId = params.get('line_user_id');
+                                if (line_user_id !== queryLineUserId) {
+                                    alert('不正なアクセスです。');
+                                    liff.closeWindow();
+                                }
                             })
                             .catch((err) => {
                                 console.log('error', err);
-                                alert('プロフィールの取得に失敗しました。');
+                                alert('ユーザー情報の取得に失敗しました。');
                                 liff.closeWindow();
-                            });
+                            })
                     })
-                    .catch((error) => {
-                        console.log(error)
-                        alert(error);
+                    .catch((err) => {
+                        console.log('error', err);
+                        alert(err);
                         liff.closeWindow();
-                    })
+                    });
             });
 
-            document.getElementById('create-opponent').addEventListener('submit', function(e) {
+            document.getElementById('create-lending-borrowing').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const name = document.getElementById('name').value;
+                const type = document.getElementById('type').value;
+                const opponentId = document.getElementById('opponent').value;
+                const isSettled = document.getElementById('is_settled').value;
+                const amount = document.getElementById('amount').value;
+                const memo = document.getElementById('memo').value;
                 
                 const requestOptions = {
                     method: 'POST',
@@ -146,15 +206,23 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ name: name, line_user_id: line_user_id }) // 送信するデータ
+                    body: JSON.stringify({
+                        name: name,
+                        line_user_id: line_user_id,
+                        type: type,
+                        opponent_id: opponentId,
+                        settled: isSettled,
+                        amount: amount,
+                        memo: memo,
+                    })
                 };
 
                 fetch(endpoint, requestOptions)
                     .then(response => {
                         if (response.status === 200) {
-                            replyText = '相手の新規作成が完了しました！';
+                            replyText = '貸借り記録の新規作成が完了しました！';
                         } else {
-                            replyText = '相手の新規作成に失敗しました。';
+                            replyText = '貸借り記録の新規作成に失敗しました。';
                         }
 
                         liff.sendMessages([
@@ -170,7 +238,7 @@
                                 console.log('error', err);
                                 liff.closeWindow();
                             });
-                    })
+                    });
             });
         </script>
     </body>

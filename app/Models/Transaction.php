@@ -16,6 +16,10 @@ class Transaction extends Model
         'is_borrower',
         'name',
         'amount',
+        'type',
         'memo',
     ];
+
+    const TYPE_LENDING = 1;
+    const TYPE_BORROWING = 2;
 }

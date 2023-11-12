@@ -27,4 +27,7 @@ Route::group([
     Route::post('/opponent/store', [LineLiffController::class, 'createOpponent'])->name('opponent.store');
     Route::get('/opponent/edit-screen', [LineLiffController::class, 'showOpponentEditScreen'])->name('opponent.editScreen');
     Route::post('/opponent/update', [LineLiffController::class, 'updateOpponent'])->name('opponent.update');
+
+    Route::get('/lending-and-borrowing/create-screen', [LineLiffController::class, 'showLendingAndBorrowingCreateScreen'])->name('lendingAndBorrowing.createScreen');
+    Route::post('/lending-and-borrowing/store', [LineLiffController::class, 'createLendingAndBorrowing'])->name('lendingAndBorrowing.store');
 });
