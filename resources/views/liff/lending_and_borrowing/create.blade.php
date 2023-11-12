@@ -111,12 +111,12 @@
                 </select>
                 <label for="opponent">相手(必須)</label>
                 <select id="opponent">
-                    <option value="1">相手1</option>
-                    <option value="2">相手2</option>
-                    <option value="3">相手3</option>
+                    @foreach($opponents as $opponent)
+                        <option value="{{ $opponent->id }}">{{ $opponent->name }}</option>
+                    @endforeach
                 </select>
-                <label id="settled">清算(必須)</label>
-                <select id="settled">
+                <label id="is_settled">清算(必須)</label>
+                <select id="is_settled">
                     <option value="0">未清算</option>
                     <option value="1">清算済み</option>
                 </select>
@@ -141,13 +141,14 @@
             </form>
         </div>
 
-        <input type="hidden" id="liff_id" value="{{ config('line.liff_ids.opponent_create') }}">
+        <input type="hidden" id="liff_id" value="{{ config('line.liff_ids.lending_and_borrowing_create') }}">
         <input type="hidden" id="endpoint" value="{{ route('liff.lendingAndBorrowing.store') }}">
 
         <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
         <script type="text/javascript">
             const endpoint = document.getElementById('endpoint').value;
             const liffId = document.getElementById('liff_id').value;
+
             let line_user_id = '';
 
             document.addEventListener("DOMContentLoaded", function() {
@@ -161,26 +162,43 @@
                         // }
 
                         // ブラウザでの動作確認時にのみ使用
-                        // if (!liff.isLoggedIn()) {
-                        //     liff.login();
-                        // }
+                        if (!liff.isLoggedIn()) {
+                            liff.login();
+                        }
+                    })
+                    .then(() => {
+                        liff.getProfile()
+                            .then(profile => {
+                                line_user_id = profile.userId;
 
-                        // liff.getProfile()
-                        //     .then(profile => {
-                        //         line_user_id = profile.userId;
-                        //     })
-                        //     .catch((err) => {
-                        //         console.log('error', err);
-                        //     });
+                                const params = (new URL(document.location)).searchParams;
+                                const queryLineUserId = params.get('line_user_id');
+                                if (line_user_id !== queryLineUserId) {
+                                    alert('不正なアクセスです。');
+                                    liff.closeWindow();
+                                }
+                            })
+                            .catch((err) => {
+                                console.log('error', err);
+                                alert('ユーザー情報の取得に失敗しました。');
+                                liff.closeWindow();
+                            })
                     })
-                    .catch((error) => {
-                        console.log(error)
-                    })
+                    .catch((err) => {
+                        console.log('error', err);
+                        alert(err);
+                        liff.closeWindow();
+                    });
             });
 
             document.getElementById('create-lending-borrowing').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const name = document.getElementById('name').value;
+                const type = document.getElementById('type').value;
+                const opponentId = document.getElementById('opponent').value;
+                const isSettled = document.getElementById('is_settled').value;
+                const amount = document.getElementById('amount').value;
+                const memo = document.getElementById('memo').value;
                 
                 const requestOptions = {
                     method: 'POST',
@@ -188,15 +206,23 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ name: name, line_user_id: line_user_id }) // 送信するデータ
+                    body: JSON.stringify({
+                        name: name,
+                        line_user_id: line_user_id,
+                        type: type,
+                        opponent_id: opponent_id,
+                        settled: settled,
+                        amount: amount,
+                        memo: memo,
+                    })
                 };
 
                 fetch(endpoint, requestOptions)
                     .then(response => {
                         if (response.status === 200) {
-                            replyText = '相手の新規作成が完了しました！';
+                            replyText = '貸借り記録の新規作成が完了しました！';
                         } else {
-                            replyText = '相手の新規作成に失敗しました。';
+                            replyText = '貸借り記録の新規作成に失敗しました。';
                         }
 
                         liff.sendMessages([

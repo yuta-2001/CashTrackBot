@@ -125,10 +125,14 @@
                             })
                             .catch((err) => {
                                 console.log('error', err);
+                                alert('プロフィールの取得に失敗しました。');
+                                liff.closeWindow();
                             });
                     })
                     .catch((error) => {
                         console.log(error)
+                        alert(error);
+                        liff.closeWindow();
                     })
             });
 

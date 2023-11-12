@@ -61,7 +61,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             new URIAction([
                                 'type' => ActionType::URI,
                                 'label' => '新規作成',
-                                'uri' => config('line.liff_urls.lending_and_borrowing_create'),
+                                'uri' => config('line.liff_urls.lending_and_borrowing_create') . '?line_user_id=' . $this->event->getSource()->getUserId(),
                             ]),
                         ],
                     ]),
