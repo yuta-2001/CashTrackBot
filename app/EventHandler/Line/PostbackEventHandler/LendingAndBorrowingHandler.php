@@ -70,7 +70,7 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
     private function handleGetUnsettledLendingListMethod(string $replyToken, string $userId)
     {
         $user = User::with('transactions')->where('line_user_id', $userId)->first();
-        $unsettledLendings = Transaction::where('user_id', $user->id)->unsettledLendings()->get();
+        $unsettledLendings = Transaction::where('user_id', $user->id)->unsettledLending()->get();
 
         if ($unsettledLendings->isEmpty()) {
             $templateMessage = new TemplateMessage([
@@ -94,7 +94,7 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
             foreach ($unsettledLendings as $unsettledLending) {
                 $item = new CarouselColumn([
                     'title' => $unsettledLending->name,
-                    'text' => '相手: ' . $unsettledLending->opponent->name . "\n" . '金額: ' . $unsettledLending->amount . "\n" . '作成日' . $unsettledLending->created_at,
+                    'text' => '相手: ' . $unsettledLending->opponent->name . "\n" . '金額: ' . $unsettledLending->amount,
                     'actions' => [
                         new PostbackAction([
                             'type' => ActionType::POSTBACK,
@@ -152,7 +152,7 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
             foreach ($unsettledBorrowings as $unsettledBorrowing) {
                 $item = new CarouselColumn([
                     'title' => $unsettledBorrowing->name,
-                    'text' => '相手: ' . $unsettledBorrowing->opponent->name . "\n" . '金額: ' . $unsettledBorrowing->amount . "\n" . '作成日' . $unsettledBorrowing->created_at,
+                    'text' => '相手: ' . $unsettledBorrowing->opponent->name . "\n" . '金額: ' . $unsettledBorrowing->amount,
                     'actions' => [
                         new PostbackAction([
                             'type' => ActionType::POSTBACK,
@@ -209,8 +209,8 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
             $items = [];
             foreach ($settledTransactions as $settledTransaction) {
                 $item = new CarouselColumn([
-                    'title' => $settledTransactions->name,
-                    'text' => '相手: ' . $settledTransaction->opponent->name . "\n" . '金額: ' . $settledTransaction->amount . "\n" . '作成日' . $settledTransaction->created_at,
+                    'title' => $settledTransaction->name . ' [' . $settledTransaction->type_name . ']',
+                    'text' => '相手: ' . $settledTransaction->opponent->name . "\n" . '金額: ' . $settledTransaction->amount,
                     'actions' => [
                         new PostbackAction([
                             'type' => ActionType::POSTBACK,
