@@ -36,12 +36,12 @@ class Transaction extends Model
         return $this->belongsTo(Opponent::class);
     }
 
-    public function scopeUnsettledLendings($query)
+    public function scopeUnsettledLending($query)
     {
         return $query->where('is_settled', false)->where('type', self::TYPE_LENDING);
     }
 
-    public function scopeUnsettledBorrowings($query)
+    public function scopeUnsettledBorrowing($query)
     {
         return $query->where('is_settled', false)->where('type', self::TYPE_BORROWING);
     }
