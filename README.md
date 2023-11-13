@@ -25,7 +25,7 @@ LINEのBOTを利用して、お金の貸し借りを記録します。
 ![manage_section](https://github.com/yuta-2001/CashTrackBot/assets/85932615/bbcacf3a-fa21-4090-bb8c-cf01ef24d427)
 
 ### 相手管理セクション
-
+![opponent_section](https://github.com/yuta-2001/CashTrackBot/assets/85932615/cec3b907-bf8d-4b00-8df2-61c0c18b98b5)
 
 ### 使い方説明セクション
 
