@@ -57,6 +57,14 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
         if ($this->params['method'] === 'change_to_unsettled') {
             $this->handleChangeToUnsettledMethod($replyToken, $userId);
         }
+
+        if ($this->params['method'] === 'delete_confirmation') {
+            $this->handleDeleteConfirmationMethod($replyToken);
+        }
+
+        if ($this->params['method'] === 'delete_confirmed') {
+            $this->handleDeleteConfirmedMethod($replyToken, $userId);
+        }
     }
 
     private function handleGetUnsettledLendingListMethod(string $replyToken, string $userId)
@@ -285,5 +293,52 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
         ]);
 
         $this->replyMessage($replyToken, $templateMessage);
+    }
+
+
+    private function handleDeleteConfirmationMethod($replyToken)
+    {
+        $transactionId = $this->params['item_id'] ?? null;
+
+        $templateMessage = new TemplateMessage([
+            'type' => MessageType::TEMPLATE,
+            'altText' => '確認',
+            'template' => new ButtonsTemplate([
+                'type' => TemplateType::BUTTONS,
+                'title' => '確認',
+                'text' => '一度削除を実行すると、データの復元はできません。削除を実行しますか？',
+                'actions' => [
+                    new PostbackAction([
+                        'type' => ActionType::POSTBACK,
+                        'label' => 'はい',
+                        'data' => 'action_type=lending_and_borrowing&method=delete_confirmed&item_id=' . $transactionId,
+                    ]),
+                    new PostbackAction([
+                        'type' => ActionType::POSTBACK,
+                        'label' => 'キャンセル',
+                        'data' => 'action_type=cancel',
+                    ]),
+                ],
+            ]),
+        ]);
+
+        $this->replyMessage($replyToken, $templateMessage);
+    }
+
+
+    private function handleDeleteConfirmedMethod(string $replyToken, string $userId)
+    {
+        $transactionId = $this->params['item_id'] ?? null;
+
+        $user = User::where('line_user_id', $userId)->first();
+        $transaction = Transaction::where('id', $transactionId)->where('user_id', $user->id)->first();
+
+        if ($transaction === null) {
+            $this->replyText($replyToken, '取引記録が見つかりませんでした。');
+            return;
+        }
+
+        $transaction->delete();
+        $this->replyText($replyToken, '取引記録を削除しました。');
     }
 }
