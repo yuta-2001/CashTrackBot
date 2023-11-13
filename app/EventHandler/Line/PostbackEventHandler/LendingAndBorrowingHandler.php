@@ -49,6 +49,14 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
         if ($this->params['method'] === 'get_settled_list') {
             $this->handleGetSettledListMethod($replyToken, $userId);
         }
+
+        if ($this->params['method'] === 'change_to_settled') {
+            $this->handleChangeToSettledMethod($replyToken, $userId);
+        }
+
+        if ($this->params['method'] === 'change_to_unsettled') {
+            $this->handleChangeToUnsettledMethod($replyToken, $userId);
+        }
     }
 
     private function handleGetUnsettledLendingListMethod(string $replyToken, string $userId)
@@ -221,6 +229,60 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
                 ]),
             ]);
         }
+
+        $this->replyMessage($replyToken, $templateMessage);
+    }
+
+
+    private function handleChangeToSettledMethod(string $replyToken)
+    {
+        $transaction = Transaction::find($this->params['item_id']);
+        $transaction->is_settled = true;
+        $transaction->save();
+
+        $templateMessage = new TemplateMessage([
+            'type' => MessageType::TEMPLATE,
+            'altText' => '清算済みにしました',
+            'template' => new ButtonsTemplate([
+                'type' => TemplateType::BUTTONS,
+                'title' => '清算済みに変更しました',
+                'text' => '[' . $transaction->name . ']を清算済みに変更しました。',
+                'actions' => [
+                    new PostbackAction([
+                        'type' => ActionType::MESSAGE,
+                        'label' => 'メニューに戻る',
+                        'text' => '貸借り管理',
+                    ]),
+                ],
+            ]),
+        ]);
+
+        $this->replyMessage($replyToken, $templateMessage);
+    }
+
+
+    private function handleChangeToUnsettledMethod(string $replyToken)
+    {
+        $transaction = Transaction::find($this->params['item_id']);
+        $transaction->is_settled = false;
+        $transaction->save();
+
+        $templateMessage = new TemplateMessage([
+            'type' => MessageType::TEMPLATE,
+            'altText' => '未清算に戻しました',
+            'template' => new ButtonsTemplate([
+                'type' => TemplateType::BUTTONS,
+                'title' => '未清算に戻しました',
+                'text' => '[' . $transaction->name . ']を未清算に戻しました。',
+                'actions' => [
+                    new PostbackAction([
+                        'type' => ActionType::MESSAGE,
+                        'label' => 'メニューに戻る',
+                        'text' => '貸借り管理',
+                    ]),
+                ],
+            ]),
+        ]);
 
         $this->replyMessage($replyToken, $templateMessage);
     }
