@@ -55,8 +55,8 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             ]),
                             new PostbackAction([
                                 'type' => ActionType::POSTBACK,
-                                'label' => '全て',
-                                'data' => 'action_type=lending_and_borrowing&method=get_all_list',
+                                'label' => '清算済み',
+                                'data' => 'action_type=lending_and_borrowing&method=get_settled_list',
                             ]),
                             new URIAction([
                                 'type' => ActionType::URI,
