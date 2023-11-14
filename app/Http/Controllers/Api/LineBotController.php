@@ -68,7 +68,7 @@ class LineBotController extends Controller
                     $message = $event->getMessage();
                     if ($message instanceof TextMessageContent) {
                         $text = $message->getText();
-                        if (in_array($text, array_values(config('line.text_from_rich_menu')))) {
+                        if (in_array($text, array_values(config('line.text_from_rich_menu'))) || in_array($text, array_values(config('line.text_from_liff')))) {
                             $handler = new TextMessageHandler($bot, $event);
                         }
                     }
@@ -98,13 +98,11 @@ class LineBotController extends Controller
                     break;
             }
 
-            // if (is_null($handler)) {
-            //     // $handler = new InvalidEventHandler($bot, $event);
-            // }
-
-            if ($handler !== null) {
-                $handler->handle();
+            if (is_null($handler)) {
+                $handler = new InvalidEventHandler($bot, $event);
             }
+
+            $handler->handle();
         }
     }
 }
