@@ -57,9 +57,6 @@ class LineLoginApiService
             ],
         );
 
-        \Log::debug($response->getStatusCode());
-        \Log::debug(json_decode($response->getBody(), true));
-
         if ($response->getStatusCode() !== 200) {
             return [
                 'status' => 'error',

@@ -86,16 +86,19 @@ class OpponentController extends Controller
         if ($request->has('liff_state')) {
             $queryInfo = $request->query('liff_state');
             parse_str(ltrim($queryInfo, '?'), $params);
+            $liffToken = $params['liff_token'] ?? null;
             $opponentId = $params['itemId'] ?? null;
         }
 
-        if ($request->has('itemId')) {
+        if ($request->has('liff_token') && $request->has('itemId')) {
             $opponentId = $request->query('itemId');
+            $liffToken = $request->query('liff_token');
         }
 
-        $opponent = Opponent::find($opponentId);
+        $user = User::where('liff_one_time_token', $liffToken)->first();
+        $opponent = Opponent::where('id', $opponentId)->where('user_id', $user->id)->first();
 
-        if (!$opponent) {
+        if (!$user || !$opponent) {
             return response()->json([
                 'message' => 'error',
             ], 400);
@@ -106,20 +109,43 @@ class OpponentController extends Controller
 
     public function update(Request $request): \Illuminate\Http\JsonResponse
     {
-        $opponentId = $request->query('opponentId');
-        $lineUserId = $request->input('line_user_id');
+        $opponentId = $request->input('opponent_id');
+        $liffToken = $request->input('liff_token');
+        $accessToken = $request->input('access_token');
         $name = $request->input('name');
 
-        if (empty($opponentId) || empty($name) || empty($lineUserId)) {
+        if (empty($opponentId) || empty($name) || empty($liffToken) || empty($accessToken)) {
+            \Log::debug('パラメーターが不足しています。');
             return response()->json([
                 'message' => 'error',
             ], 400);
         }
 
-        $user = User::where('line_user_id', $lineUserId)->first();
+        // ユーザーのaccessTokenを検証
+        $accessTokenVerifyResult = LineLoginApiService::verifyAccessToken($accessToken);
+        \Log::debug($accessTokenVerifyResult);
+        if ($accessTokenVerifyResult['status'] === 'error') {
+            return response()->json([
+                'message' => $accessTokenVerifyResult['message'],
+            ], 400);
+        }
+
+        // accessTokenからユーザー情報を取得
+        $response = LineLoginApiService::getProfileFromAccessToken($accessToken);
+        \Log::debug($response);
+        if ($response['status'] === 'error') {
+            return response()->json([
+                'message' => $response['message'],
+            ], 400);
+        }
+
+        $lineUserId = $response['data']['userId'];
+        \Log::debug('ユーザーID: ' . $lineUserId);
+
+        $user = User::where('line_user_id', $lineUserId)->where('liff_one_time_token', $liffToken)->first();
         $opponent = Opponent::where('id', $opponentId)->where('user_id', $user->id)->first();
 
-        if (!$opponent) {
+        if (!$user || !$opponent) {
             return response()->json([
                 'message' => 'error',
             ], 400);

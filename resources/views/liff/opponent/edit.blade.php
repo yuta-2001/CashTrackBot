@@ -103,9 +103,11 @@
         <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
         <script type="text/javascript">
             const opponentId = document.getElementById('opponent_id').value;
-            const endpoint = document.getElementById('endpoint').value + '?opponentId=' + opponentId;
+            const endpoint = document.getElementById('endpoint').value;
             const liffId = document.getElementById('liff_id').value;
-            let line_user_id = '';
+
+            let liffToken = '';
+            let accessToken = '';
 
             document.addEventListener("DOMContentLoaded", function() {
                 liff.init({ liffId: liffId })
@@ -121,14 +123,11 @@
                         // if (!liff.isLoggedIn()) {
                         //     liff.login();
                         // }
-
-                        liff.getProfile()
-                            .then(profile => {
-                                line_user_id = profile.userId;
-                            })
-                            .catch((err) => {
-                                console.log('error', err);
-                            });
+                    })
+                    .then(() => {
+                        const params = (new URL(document.location)).searchParams;
+                        liffToken = params.get('liff_token');
+                        accessToken = liff.getAccessToken();
                     })
                     .catch((error) => {
                         console.log(error)
@@ -145,7 +144,12 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ name: name, line_user_id: line_user_id }) // 送信するデータ
+                    body: JSON.stringify({
+                        name: name,
+                        opponent_id: opponentId,
+                        liff_token: liffToken,
+                        access_token: accessToken
+                    })
                 };
 
                 fetch(endpoint, requestOptions)
