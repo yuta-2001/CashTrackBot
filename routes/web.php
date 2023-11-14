@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\LineLiffController;
+use App\Http\Controllers\Liff\OpponentController;
+use App\Http\Controllers\Liff\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,11 +24,22 @@ Route::group([
     'prefix' => 'liff',
     'as' => 'liff.',
 ], function () {
-    Route::get('/opponent/create-screen', [LineLiffController::class, 'showOpponentCreateScreen'])->name('opponent.createScreen');
-    Route::post('/opponent/store', [LineLiffController::class, 'createOpponent'])->name('opponent.store');
-    Route::get('/opponent/edit-screen', [LineLiffController::class, 'showOpponentEditScreen'])->name('opponent.editScreen');
-    Route::post('/opponent/update', [LineLiffController::class, 'updateOpponent'])->name('opponent.update');
+    Route::group([
+        'prefix' => 'opponent',
+        'as' => 'opponent.',
+    ], function () {
+        Route::get('/create-screen', [OpponentController::class, 'showCreateScreen'])->name('createScreen');
+        Route::post('/store', [OpponentController::class, 'store'])->name('store');
+        Route::get('/edit-screen', [OpponentController::class, 'showEditScreen'])->name('editScreen');
+        Route::post('/update', [OpponentController::class, 'update'])->name('update');
+    });
 
-    Route::get('/lending-and-borrowing/create-screen', [LineLiffController::class, 'showLendingAndBorrowingCreateScreen'])->name('lendingAndBorrowing.createScreen');
-    Route::post('/lending-and-borrowing/store', [LineLiffController::class, 'createLendingAndBorrowing'])->name('lendingAndBorrowing.store');
+    Route::group([
+        'prefix' => 'lending-and-borrowing',
+        'as' => 'lendingAndBorrowing.',
+    ], function () {
+        Route::get('/create-screen', [TransactionController::class, 'showCreateScreen'])->name('createScreen');
+        Route::post('/store', [TransactionController::class, 'store'])->name('store');
+    });
+
 });

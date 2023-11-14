@@ -16,6 +16,7 @@ class User extends Model
     protected $fillable = [
         'name',
         'line_user_id',
+        'liff_one_time_token'
     ];
 
     public function opponents(): \Illuminate\Database\Eloquent\Relations\HasMany
