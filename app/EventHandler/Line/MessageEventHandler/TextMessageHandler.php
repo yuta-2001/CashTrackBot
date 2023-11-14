@@ -148,6 +148,10 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
 
                 $this->replyMessage($replyToken, $templateMessage);
                 break;
+
+            default:
+                return 'recieve success message';
+                break;
         }
     }
 }
