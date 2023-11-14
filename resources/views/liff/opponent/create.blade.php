@@ -102,7 +102,9 @@
         <script type="text/javascript">
             const endpoint = document.getElementById('endpoint').value;
             const liffId = document.getElementById('liff_id').value;
-            let line_user_id = '';
+
+            let liffToken = '';
+            let accessToken = '';
 
             document.addEventListener("DOMContentLoaded", function() {
                 liff.init({ liffId: liffId })
@@ -119,15 +121,11 @@
                         //     liff.login();
                         // }
 
-                        liff.getProfile()
-                            .then(profile => {
-                                line_user_id = profile.userId;
-                            })
-                            .catch((err) => {
-                                console.log('error', err);
-                                alert('プロフィールの取得に失敗しました。');
-                                liff.closeWindow();
-                            });
+                    })
+                    .then(() => {
+                        const params = (new URL(document.location)).searchParams;
+                        liffToken = params.get('liff_token');
+                        accessToken = liff.getAccessToken();
                     })
                     .catch((error) => {
                         console.log(error)
@@ -146,7 +144,11 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ name: name, line_user_id: line_user_id }) // 送信するデータ
+                    body: JSON.stringify({
+                        name: name,
+                        liff_token: liffToken,
+                        access_token: accessToken
+                    })
                 };
 
                 fetch(endpoint, requestOptions)

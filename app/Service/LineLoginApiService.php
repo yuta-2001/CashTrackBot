@@ -29,7 +29,7 @@ class LineLoginApiService
 
         $responseData = json_decode($response->getBody(), true);
 
-        if ($responseData['client_id'] !== config('line.channel_id') || !$responseData['expires_in'] > 0) {
+        if ($responseData['client_id'] !== config('line.liff_channel_id') || !$responseData['expires_in'] > 0) {
             return [
                 'status' => 'error',
                 'message' => 'invalid access token',
@@ -49,12 +49,16 @@ class LineLoginApiService
             'GET',
             'https://api.line.me/v2/profile',
             [
-                'query' => [
-                    'access_token' => $accessToken,
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Accept' => 'application/json',
                 ],
-                'http_errors' => false //404エラーも通す指定
-            ]
+                'http_errors' => false,
+            ],
         );
+
+        \Log::debug($response->getStatusCode());
+        \Log::debug(json_decode($response->getBody(), true));
 
         if ($response->getStatusCode() !== 200) {
             return [

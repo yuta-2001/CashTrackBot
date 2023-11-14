@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Liff;
 
+use App\Http\Controllers\Controller;
 use App\Models\Opponent;
 use App\Models\Transaction;
 use App\Models\User;

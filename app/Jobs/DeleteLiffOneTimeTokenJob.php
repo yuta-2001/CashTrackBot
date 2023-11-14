@@ -35,5 +35,6 @@ class DeleteLiffOneTimeTokenJob implements ShouldQueue
         }
         $this->user->liff_one_time_token = null;
         $this->user->save();
+        \Log::debug('キューの中' . $this->user->liff_one_time_token);
     }
 }

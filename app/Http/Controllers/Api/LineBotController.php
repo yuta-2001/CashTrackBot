@@ -98,11 +98,13 @@ class LineBotController extends Controller
                     break;
             }
 
-            if (is_null($handler)) {
-                $handler = new InvalidEventHandler($bot, $event);
-            }
+            // if (is_null($handler)) {
+            //     // $handler = new InvalidEventHandler($bot, $event);
+            // }
 
-            $handler->handle();
+            if ($handler !== null) {
+                $handler->handle();
+            }
         }
     }
 }

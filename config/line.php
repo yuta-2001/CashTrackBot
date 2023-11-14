@@ -42,4 +42,6 @@ return [
     ],
 
     'liff_token_expiration_minutes' => 20,
+
+    'liff_channel_id' => env('LIFF_CHANNEL_ID'),
 ];
