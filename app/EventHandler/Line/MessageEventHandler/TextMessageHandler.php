@@ -36,12 +36,16 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
         $replyToken = $this->event->getReplyToken();
         $source = $this->event->getSource();
         $userId = $source->getUserId();
+        $user = User::where('line_user_id', $userId)->first();
 
         switch ($text) {
             case config('line.text_from_rich_menu.lending_and_borrowing'):
-                $user = User::where('line_user_id', $userId)->first();
                 $opponents = Opponent::where('user_id', $user->id)->get();
                 if (!$opponents->isEmpty()) {
+                    // liff用のワンタイムトークンを生成
+                    $user->liff_one_time_token = \Str::random(32);
+                    $user->save();
+
                     $templateMessage = new TemplateMessage([
                         'type' => MessageType::TEMPLATE,
                         'altText' => '貸借り管理メニュー',
@@ -68,7 +72,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                                 new URIAction([
                                     'type' => ActionType::URI,
                                     'label' => '新規作成',
-                                    'uri' => config('line.liff_urls.lending_and_borrowing_create') . '?line_user_id=' . $this->event->getSource()->getUserId(),
+                                    'uri' => config('line.liff_urls.lending_and_borrowing_create') . '?liff_token=' . $user->liff_one_time_token,
                                 ]),
                             ],
                         ]),
@@ -82,6 +86,9 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                 break;
 
             case config('line.text_from_rich_menu.opponent'):
+                $user->liff_one_time_token = \Str::random(32);
+                $user->save();
+
                 $templateMessage = new TemplateMessage([
                     'type' => MessageType::TEMPLATE,
                     'altText' => '相手管理メニュー',
@@ -98,7 +105,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             new URIAction([
                                 'type' => ActionType::URI,
                                 'label' => '新規作成',
-                                'uri' => config('line.liff_urls.opponent_create'),
+                                'uri' => config('line.liff_urls.opponent_create') . '?liff_token=' . $user->liff_one_time_token,
                             ]),
                         ],
                     ]),

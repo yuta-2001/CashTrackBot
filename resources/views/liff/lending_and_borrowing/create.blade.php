@@ -151,6 +151,10 @@
 
             let line_user_id = '';
 
+            // クエリパラメータのliff_tokenを取得
+            let liffToken = '';
+            let accessToken = '';
+
             document.addEventListener("DOMContentLoaded", function() {
                 liff.init({ liffId: liffId })
                     .then(() => {
@@ -167,22 +171,9 @@
                         }
                     })
                     .then(() => {
-                        liff.getProfile()
-                            .then(profile => {
-                                line_user_id = profile.userId;
-
-                                const params = (new URL(document.location)).searchParams;
-                                const queryLineUserId = params.get('line_user_id');
-                                if (line_user_id !== queryLineUserId) {
-                                    alert('不正なアクセスです。');
-                                    liff.closeWindow();
-                                }
-                            })
-                            .catch((err) => {
-                                console.log('error', err);
-                                alert('ユーザー情報の取得に失敗しました。');
-                                liff.closeWindow();
-                            })
+                        const params = (new URL(document.location)).searchParams;
+                        liffToken = params.get('liff_token');
+                        accessToken = liff.getAccessToken();
                     })
                     .catch((err) => {
                         console.log('error', err);
@@ -208,7 +199,8 @@
                     },
                     body: JSON.stringify({
                         name: name,
-                        line_user_id: line_user_id,
+                        liff_token: liffToken,
+                        access_token: accessToken,
                         type: type,
                         opponent_id: opponentId,
                         settled: isSettled,
