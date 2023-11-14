@@ -6,6 +6,7 @@ use App\Models\Opponent;
 use App\Models\User;
 use App\EventHandler\EventHandler;
 use App\EventHandler\Line\LineBaseEventHandler;
+use App\Service\ManageLiffTokenService;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\PostbackAction;
@@ -43,8 +44,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                 $opponents = Opponent::where('user_id', $user->id)->get();
                 if (!$opponents->isEmpty()) {
                     // liff用のワンタイムトークンを生成
-                    $user->liff_one_time_token = \Str::random(32);
-                    $user->save();
+                    $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
 
                     $templateMessage = new TemplateMessage([
                         'type' => MessageType::TEMPLATE,
@@ -72,12 +72,12 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                                 new URIAction([
                                     'type' => ActionType::URI,
                                     'label' => '新規作成',
-                                    'uri' => config('line.liff_urls.lending_and_borrowing_create') . '?liff_token=' . $user->liff_one_time_token,
+                                    'uri' => config('line.liff_urls.lending_and_borrowing_create') . '?liff_token=' . $liffOneTimeToken,
                                 ]),
                             ],
                         ]),
                     ]);
-    
+
                     $this->replyMessage($replyToken, $templateMessage);
                 } else {
                     $this->replyText($replyToken, '貸し借りを管理するには、相手を先に登録してください。');
@@ -86,8 +86,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                 break;
 
             case config('line.text_from_rich_menu.opponent'):
-                $user->liff_one_time_token = \Str::random(32);
-                $user->save();
+                $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
 
                 $templateMessage = new TemplateMessage([
                     'type' => MessageType::TEMPLATE,
@@ -105,7 +104,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             new URIAction([
                                 'type' => ActionType::URI,
                                 'label' => '新規作成',
-                                'uri' => config('line.liff_urls.opponent_create') . '?liff_token=' . $user->liff_one_time_token,
+                                'uri' => config('line.liff_urls.opponent_create') . '?liff_token=' . $liffOneTimeToken,
                             ]),
                         ],
                     ]),
