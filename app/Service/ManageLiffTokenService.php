@@ -13,7 +13,7 @@ class ManageLiffTokenService
         $user->liff_one_time_token = $liffToken;
         $user->save();
 
-        DeleteLiffOneTimeTokenJob::dispatch($user)->delay(now()->addMinutes(config('line.liff_token_expiration_minutes')));
+        DeleteLiffOneTimeTokenJob::dispatch($user, $liffToken)->delay(now()->addMinutes(config('line.liff_token_expiration_minutes')));
 
         return $liffToken;
     }

@@ -14,13 +14,15 @@ class DeleteLiffOneTimeTokenJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $user;
+    protected $liffToken;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user)
+    public function __construct(User $user, string $liffToken)
     {
         $this->user = $user;
+        $this->liffToken = $liffToken;
     }
 
     /**
@@ -28,6 +30,9 @@ class DeleteLiffOneTimeTokenJob implements ShouldQueue
      */
     public function handle(): void
     {
+        if ($this->user->liff_one_time_token !== $this->liffToken) {
+            return;
+        }
         $this->user->liff_one_time_token = null;
         $this->user->save();
     }
