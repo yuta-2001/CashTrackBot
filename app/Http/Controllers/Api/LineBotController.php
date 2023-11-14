@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\EventHandler\Line\FollowEventHandler;
+use App\EventHandler\Line\InvalidEventHandler;
 use App\EventHandler\Line\MessageEventHandler\TextMessageHandler;
 use App\EventHandler\Line\PostbackEventHandler\CancelHandler;
 use App\EventHandler\Line\PostbackEventHandler\ExplainHandler;
@@ -66,7 +67,10 @@ class LineBotController extends Controller
                 case $event instanceof MessageEvent:
                     $message = $event->getMessage();
                     if ($message instanceof TextMessageContent) {
-                        $handler = new TextMessageHandler($bot, $event);
+                        $text = $message->getText();
+                        if (in_array($text, array_values(config('line.text_from_rich_menu')))) {
+                            $handler = new TextMessageHandler($bot, $event);
+                        }
                     }
                     break;
 
@@ -92,13 +96,13 @@ class LineBotController extends Controller
                     }
 
                     break;
-                default:
-                    // $body = $event->getEventBody();
             }
 
-            if ($handler !== null) {
-                $handler->handle();
+            if (is_null($handler)) {
+                $handler = new InvalidEventHandler($bot, $event);
             }
+
+            $handler->handle();
         }
     }
 }
