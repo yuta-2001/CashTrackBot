@@ -19,6 +19,7 @@ LINEのBOTを利用して、お金の貸し借りを記録します。
 
 ### その他
 - LINE Messaging API
+- LINE Login API
 - ngrok
 
 ## デモ
