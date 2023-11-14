@@ -2,28 +2,36 @@
 
 namespace App\Http\Controllers\Liff;
 
+use App\Http\Controllers\Controller;
 use App\Models\Opponent;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Service\LineLoginApiService;
+use App\Trait\LineLoginApiAuthTrait;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function showLendingAndBorrowingCreateScreen(Request $request)
+    use LineLoginApiAuthTrait;
+
+    public function showCreateScreen(Request $request)
     {
-        $user = null;
-        if ($request->has('liff_token')) {
-            $liff_one_time_token = $request->query('liff_token');
-            $user = User::where('liff_one_time_token', $liff_one_time_token)->first();
+        if ($request->has('liff_state')) {
+            $queryInfo = $request->query('liff_state');
+            parse_str(ltrim($queryInfo, '?'), $params);
+            $liffToken = $params['liff_token'] ?? null;
         }
 
+        if ($request->has('liff_token')) {
+            $liffToken = $request->query('liff_token');
+        }
+        
+        $user = User::where('liff_one_time_token', $liffToken)->first();
         $opponents = Opponent::where('user_id', $user->id)->get();
 
         return view('liff.lending_and_borrowing.create', compact('opponents'));
     }
 
-    public function createLendingAndBorrowing(Request $request)
+    public function store(Request $request)
     {
         $accessToken = $request->input('access_token');
         $liffToken = $request->input('liff_token');
@@ -49,30 +57,20 @@ class TransactionController extends Controller
             ], 400);
         }
 
-        // ユーザーのaccessTokenを検証
-        $accessTokenVerifyResult = LineLoginApiService::verifyAccessToken($accessToken);
-
-        if ($accessTokenVerifyResult['status'] === 'error') {
-            return response()->json([
-                'message' => 'invalid access token',
-            ], 400);
-        }
-
         if ($type !== Transaction::TYPE_LENDING && $type !== Transaction::TYPE_BORROWING) {
             return response()->json([
                 'message' => 'invalid transaction type',
             ], 400);
         }
 
-        // accessTokenからユーザー情報を取得
-        $response = LineLoginApiService::getProfileFromAccessToken($accessToken);
-        if ($response['status'] === 'error') {
+        // ユーザーのaccessTokenを検証
+        $lineUserId = $this->getLineUserIdFromAccessToken($accessToken);
+        if (!$lineUserId) {
             return response()->json([
                 'message' => 'invalid access token',
             ], 400);
         }
 
-        $lineUserId = $response['userId'];
         $user = User::where('liff_one_time_token', $liffToken)->where('line_user_id', $lineUserId)->first();
         $opponent = Opponent::where('id', $opponentId)->where('user_id', $user->id)->first();
 

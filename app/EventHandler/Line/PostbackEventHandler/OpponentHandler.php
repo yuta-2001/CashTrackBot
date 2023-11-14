@@ -6,6 +6,7 @@ use App\EventHandler\EventHandler;
 use App\EventHandler\Line\LineBaseEventHandler;
 use App\Models\Opponent;
 use App\Models\User;
+use App\Service\ManageLiffTokenService;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\CarouselColumn;
@@ -76,6 +77,7 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
             ]);
         } else {
             $items = [];
+            $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
             foreach ($partners as $partner) {
                 $item = new CarouselColumn([
                     'title' => $partner->name,
@@ -84,7 +86,7 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
                         new URIAction([
                             'type' => ActionType::URI,
                             'label' => '編集',
-                            'uri' => config('line.liff_urls.opponent_edit') . '?itemId=' . $partner->id,
+                            'uri' => config('line.liff_urls.opponent_edit') . '?itemId=' . $partner->id . '&liff_token=' . $liffOneTimeToken,
                         ]),
                         new PostbackAction([
                             'type' => ActionType::POSTBACK,

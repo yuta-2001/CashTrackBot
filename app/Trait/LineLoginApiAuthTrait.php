@@ -1,12 +1,27 @@
 <?php
 
-namespace App\Service;
+namespace App\Trait;
 
 use GuzzleHttp\Client;
 
-class LineLoginApiService
+trait LineLoginApiAuthTrait
 {
-    public static function verifyAccessToken(string $accessToken)
+    public function getLineUserIdFromAccessToken(string $accessToken) {
+
+        $verifyResult = $this->verifyAccessToken($accessToken);
+        if ($verifyResult['status'] === 'error') {
+            return null;
+        }
+
+        $profileResult = $this->getProfileFromAccessToken($accessToken);
+        if ($profileResult['status'] === 'error') {
+            return null;
+        }
+
+        return $profileResult['data']['userId'];
+    }
+
+    public function verifyAccessToken(string $accessToken)
     {
         $client = new Client();
         $response = $client->request(
@@ -29,7 +44,7 @@ class LineLoginApiService
 
         $responseData = json_decode($response->getBody(), true);
 
-        if ($responseData['client_id'] !== config('line.channel_id') || !$responseData['expires_in'] > 0) {
+        if ($responseData['client_id'] !== config('line.liff_channel_id') || !$responseData['expires_in'] > 0) {
             return [
                 'status' => 'error',
                 'message' => 'invalid access token',
@@ -42,18 +57,19 @@ class LineLoginApiService
         ];
     }
 
-    public static function getProfileFromAccessToken(string $accessToken)
+    public function getProfileFromAccessToken(string $accessToken)
     {
         $client = new Client();
         $response = $client->request(
             'GET',
             'https://api.line.me/v2/profile',
             [
-                'query' => [
-                    'access_token' => $accessToken,
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Accept' => 'application/json',
                 ],
-                'http_errors' => false //404エラーも通す指定
-            ]
+                'http_errors' => false,
+            ],
         );
 
         if ($response->getStatusCode() !== 200) {
