@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Liff;
 use App\Http\Controllers\Controller;
 use App\Models\Opponent;
 use App\Models\User;
-use App\Service\LineLoginApiService;
+use App\Trait\LineLoginApiAuthTrait;
 use Illuminate\Http\Request;
 
 class OpponentController extends Controller
 {
+    use LineLoginApiAuthTrait;
+
     public function showCreateScreen(Request $request)
     {
         if ($request->has('liff_state')) {
@@ -41,28 +43,17 @@ class OpponentController extends Controller
 
         if (empty($liffToken) || empty($accessToken) || empty($name)) {
             return response()->json([
-                'message' => 'error',
+                'message' => 'lack of parameters',
             ], 400);
         }
 
-        // ユーザーのaccessTokenを検証
-        $accessTokenVerifyResult = LineLoginApiService::verifyAccessToken($accessToken);
-
-        if ($accessTokenVerifyResult['status'] === 'error') {
+        $lineUserId = $this->getLineUserIdFromAccessToken($accessToken);
+        if (!$lineUserId) {
             return response()->json([
-                'message' => $accessTokenVerifyResult['message'],
+                'message' => 'invalid access token',
             ], 400);
         }
 
-        // accessTokenからユーザー情報を取得
-        $response = LineLoginApiService::getProfileFromAccessToken($accessToken);
-        if ($response['status'] === 'error') {
-            return response()->json([
-                'message' => $response['message'],
-            ], 400);
-        }
-
-        $lineUserId = $response['data']['userId'];
         $user = User::where('liff_one_time_token', $liffToken)->where('line_user_id', $lineUserId)->first();
 
         if (!$user) {
@@ -115,32 +106,17 @@ class OpponentController extends Controller
         $name = $request->input('name');
 
         if (empty($opponentId) || empty($name) || empty($liffToken) || empty($accessToken)) {
-            \Log::debug('パラメーターが不足しています。');
             return response()->json([
                 'message' => 'error',
             ], 400);
         }
 
-        // ユーザーのaccessTokenを検証
-        $accessTokenVerifyResult = LineLoginApiService::verifyAccessToken($accessToken);
-        \Log::debug($accessTokenVerifyResult);
-        if ($accessTokenVerifyResult['status'] === 'error') {
+        $lineUserId = $this->getLineUserIdFromAccessToken($accessToken);
+        if (!$lineUserId) {
             return response()->json([
-                'message' => $accessTokenVerifyResult['message'],
+                'message' => 'invalid access token',
             ], 400);
         }
-
-        // accessTokenからユーザー情報を取得
-        $response = LineLoginApiService::getProfileFromAccessToken($accessToken);
-        \Log::debug($response);
-        if ($response['status'] === 'error') {
-            return response()->json([
-                'message' => $response['message'],
-            ], 400);
-        }
-
-        $lineUserId = $response['data']['userId'];
-        \Log::debug('ユーザーID: ' . $lineUserId);
 
         $user = User::where('line_user_id', $lineUserId)->where('liff_one_time_token', $liffToken)->first();
         $opponent = Opponent::where('id', $opponentId)->where('user_id', $user->id)->first();

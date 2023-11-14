@@ -1,12 +1,27 @@
 <?php
 
-namespace App\Service;
+namespace App\Trait;
 
 use GuzzleHttp\Client;
 
-class LineLoginApiService
+trait LineLoginApiAuthTrait
 {
-    public static function verifyAccessToken(string $accessToken)
+    public function getLineUserIdFromAccessToken(string $accessToken) {
+
+        $verifyResult = $this->verifyAccessToken($accessToken);
+        if ($verifyResult['status'] === 'error') {
+            return null;
+        }
+
+        $profileResult = $this->getProfileFromAccessToken($accessToken);
+        if ($profileResult['status'] === 'error') {
+            return null;
+        }
+
+        return $profileResult['data']['userId'];
+    }
+
+    public function verifyAccessToken(string $accessToken)
     {
         $client = new Client();
         $response = $client->request(
@@ -42,7 +57,7 @@ class LineLoginApiService
         ];
     }
 
-    public static function getProfileFromAccessToken(string $accessToken)
+    public function getProfileFromAccessToken(string $accessToken)
     {
         $client = new Client();
         $response = $client->request(
