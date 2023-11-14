@@ -27,6 +27,6 @@ class FollowEventHandler extends LineBaseEventHandler implements EventHandler
             'line_user_id' => $userId,
         ]);
 
-        $this->replyText($this->event->getReplyToken(), '友達追加ありがとう！');
+        $this->replyText($this->event->getReplyToken(), '友達追加ありがとうございます! お金の貸し借りを管理するチャットボットです。リッチメニューから相手を登録し、管理を始めましょう！');
     }
 }

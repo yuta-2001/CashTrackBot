@@ -38,7 +38,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
         $userId = $source->getUserId();
 
         switch ($text) {
-            case '貸借り管理':
+            case config('line.text_from_rich_menu.lending_and_borrowing'):
                 $user = User::where('line_user_id', $userId)->first();
                 $opponents = Opponent::where('user_id', $user->id)->get();
                 if (!$opponents->isEmpty()) {
@@ -81,7 +81,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
 
                 break;
 
-            case '相手管理':
+            case config('line.text_from_rich_menu.opponent'):
                 $templateMessage = new TemplateMessage([
                     'type' => MessageType::TEMPLATE,
                     'altText' => '相手管理メニュー',
@@ -107,7 +107,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                 $this->replyMessage($replyToken, $templateMessage);
                 break;
 
-            case '使い方':
+            case config('line.text_from_rich_menu.how_to_use'):
                 $templateMessage = new TemplateMessage([
                     'type' => MessageType::TEMPLATE,
                     'altText' => '使い方メニュー',

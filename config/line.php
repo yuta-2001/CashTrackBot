@@ -4,6 +4,12 @@ return [
     'channel_access_token' => env('LINE_ACCESS_TOKEN'),
     'channel_secret' => env('LINE_CHENNEL_SECRET'),
 
+    'text_from_rich_menu' => [
+        'lending_and_borrowing' => '貸借り管理',
+        'opponent' => '相手管理',
+        'how_to_use' => '使い方',
+    ],
+
     'liff_urls' => [
         'opponent_create' => env('LIFF_OPPONENT_CREATE_URL'),
         'opponent_edit' => env('LIFF_OPPONENT_EDIT_URL'),
