@@ -7,6 +7,7 @@ use App\EventHandler\Line\LineBaseEventHandler;
 use App\Models\Opponent;
 use App\Models\User;
 use App\Service\ManageLiffTokenService;
+use App\Trait\CarouselTemplatePaginationTrait;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\CarouselColumn;
@@ -21,6 +22,8 @@ use LINE\Webhook\Model\PostbackEvent;
 
 class OpponentHandler extends LineBaseEventHandler implements EventHandler
 {
+    use CarouselTemplatePaginationTrait;
+
     protected $bot;
     private $event;
     private $params;
@@ -56,9 +59,8 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
     private function handleGetListMethod(string $replyToken, string $userId)
     {
         $user = User::with('opponents')->where('line_user_id', $userId)->first();
-        $partners = $user->opponents;
 
-        if ($partners->isEmpty()) {
+        if (!Opponent::where('user_id', $user->id)->exists()) {
             $templateMessage = new TemplateMessage([
                 'type' => MessageType::TEMPLATE,
                 'altText' => '相手一覧',
@@ -78,6 +80,39 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
         } else {
             $items = [];
             $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
+            $page = (int)$this->params['page'] ?? 1;
+            $opponentCount = Opponent::where('user_id', $user->id)->count();
+            $prevPageBtn = null;
+            $nextPageBtn = null;
+            $partners = null;
+
+            if ($page == 1 && $opponentCount <= config('line.paginate_per_page')) {
+                $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->get();
+            }
+
+            if ($page == 1 && $opponentCount > config('line.paginate_per_page')) {
+                $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->take(5)->get();
+                $nextPageBtn = $this->getNextBtn($this->params['action_type'], $this->params['method'], $page);
+            }
+
+            if ($page > 1) {
+                $displayedCount = config('line.paginate_per_page') * ($page - 1);
+                $remainingCount = $opponentCount - $displayedCount;
+
+                if ($remainingCount <= config('line.paginate_per_page')) {
+                    $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->skip($displayedCount)->take($remainingCount)->get();
+                    $prevPageBtn = $this->getPrevBtn($this->params['action_type'], $this->params['method'], $page);
+                } else {
+                    $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->skip($displayedCount)->take(config('line.paginate_per_page'))->get();
+                    $prevPageBtn = $this->getPrevBtn($this->params['action_type'], $this->params['method'], $page);
+                    $nextPageBtn = $this->getNextBtn($this->params['action_type'], $this->params['method'], $page);
+                }
+            }
+
+            if (!is_null($prevPageBtn)) {
+                $items[] = $prevPageBtn;
+            }
+
             foreach ($partners as $partner) {
                 $item = new CarouselColumn([
                     'title' => $partner->name,
@@ -98,9 +133,13 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
                 $items[] = $item;
             }
 
+            if (!is_null($nextPageBtn)) {
+                $items[] = $nextPageBtn;
+            }
+
             $templateMessage = new TemplateMessage([
                 'type' => MessageType::TEMPLATE,
-                'altText' => 'Button alt text',
+                'altText' => '相手一覧',
                 'template' => new CarouselTemplate([
                     'type' => TemplateType::CAROUSEL,
                     'columns' => $items,

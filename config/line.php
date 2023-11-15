@@ -47,10 +47,12 @@ return [
         'opponent_edit' => '相手の編集が完了しました！',
         'opponent_edit_error' => '相手の編集に失敗しました。',
         'lending_and_borrowing_create' => '貸借り記録の作成が完了しました！',
-        'lending_and_borrowing_create_error' => '貸借り記録の新規作成に失敗しました。',
+        'lending_and_borrowing_create_error' => '貸借り記録の作成に失敗しました。',
     ],
 
     'liff_token_expiration_minutes' => 20,
 
     'liff_channel_id' => env('LIFF_CHANNEL_ID'),
+
+    'paginate_per_page' => 5,
 ];
