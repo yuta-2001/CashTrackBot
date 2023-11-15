@@ -56,9 +56,8 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
     private function handleGetListMethod(string $replyToken, string $userId)
     {
         $user = User::with('opponents')->where('line_user_id', $userId)->first();
-        $partners = $user->opponents;
 
-        if ($partners->isEmpty()) {
+        if (!Opponent::where('user_id', $user->id)->exists()) {
             $templateMessage = new TemplateMessage([
                 'type' => MessageType::TEMPLATE,
                 'altText' => '相手一覧',
@@ -78,6 +77,104 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
         } else {
             $items = [];
             $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
+            $page = (int)$this->params['page'] ?? 1;
+            $opponentCount = Opponent::where('user_id', $user->id)->count();
+            $prevPageBtn = null;
+            $nextPageBtn = null;
+            $partners = null;
+
+            // 1ページ目かつ相手が10件以下の場合は全件表示
+            if ($page == 1 && $opponentCount <= 10) {
+                $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->get();
+            }
+
+            // 1ページ目かつ相手が11件以上の場合は9件表示+次の10件を表示ボタンを表示
+            if ($page == 1 && $opponentCount > 10) {
+                $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->take(9)->get();
+                $nextPageBtn = new CarouselColumn([
+                    'title' => '次のページを表示',
+                    'text' => 'next',
+                    'actions' => [
+                        new PostbackAction([
+                            'type' => ActionType::POSTBACK,
+                            'label' => '表示',
+                            'data' => 'action_type=opponent&method=get_list&page=' . ($page + 1),
+                        ]),
+                        new PostbackAction([
+                            'type' => ActionType::POSTBACK,
+                            'label' => 'キャンセル',
+                            'data' => 'action_type=cancel',
+                        ]),
+                    ],
+                ]);
+            }
+
+            // 2ページ目以降はこれまで表示した個数を計算し、最後のページかどうかを判定する
+            // 最後の場合は次へボタンを表示しない
+            // 最後ではない場合は前のページを表示ボタンと次のページを表示ボタンを表示する
+            if ($page > 1) {
+                $displayedCount = 8 * ($page - 2) + 9;
+                $remainingCount = $opponentCount - $displayedCount;
+
+                if ($remainingCount < 10) {
+                    $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->skip($displayedCount)->take($remainingCount)->get();
+                    $prevPageBtn = new CarouselColumn([
+                        'title' => '前のページを表示',
+                        'text' => 'prev',
+                        'actions' => [
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => '表示',
+                                'data' => 'action_type=opponent&method=get_list&page=' . ($page - 1),
+                            ]),
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => 'キャンセル',
+                                'data' => 'action_type=cancel',
+                            ]),
+                        ],
+                    ]);
+                } else {
+                    $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->skip($displayedCount)->take(8)->get();
+                    $prevPageBtn = new CarouselColumn([
+                        'title' => '前のページを表示',
+                        'text' => 'prev',
+                        'actions' => [
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => '表示',
+                                'data' => 'action_type=opponent&method=get_list&page=' . ($page - 1),
+                            ]),
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => 'キャンセル',
+                                'data' => 'action_type=cancel',
+                            ]),
+                        ],
+                    ]);
+                    $nextPageBtn = new CarouselColumn([
+                        'title' => '次のページを表示',
+                        'text' => 'next',
+                        'actions' => [
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => '表示',
+                                'data' => 'action_type=opponent&method=get_list&page=' . ($page + 1),
+                            ]),
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => 'キャンセル',
+                                'data' => 'action_type=cancel',
+                            ]),
+                        ],
+                    ]);
+                }
+            }
+
+            if (!is_null($prevPageBtn)) {
+                $items[] = $prevPageBtn;
+            }
+
             foreach ($partners as $partner) {
                 $item = new CarouselColumn([
                     'title' => $partner->name,
@@ -98,9 +195,13 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
                 $items[] = $item;
             }
 
+            if (!is_null($nextPageBtn)) {
+                $items[] = $nextPageBtn;
+            }
+
             $templateMessage = new TemplateMessage([
                 'type' => MessageType::TEMPLATE,
-                'altText' => 'Button alt text',
+                'altText' => '相手一覧',
                 'template' => new CarouselTemplate([
                     'type' => TemplateType::CAROUSEL,
                     'columns' => $items,

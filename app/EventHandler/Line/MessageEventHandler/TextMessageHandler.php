@@ -99,7 +99,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             new PostbackAction([
                                 'type' => ActionType::POSTBACK,
                                 'label' => '相手一覧',
-                                'data' => 'action_type=opponent&method=get_list',
+                                'data' => 'action_type=opponent&method=get_list&page=1',
                             ]),
                             new URIAction([
                                 'type' => ActionType::URI,
