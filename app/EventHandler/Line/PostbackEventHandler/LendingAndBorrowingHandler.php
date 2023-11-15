@@ -6,6 +6,7 @@ use App\EventHandler\EventHandler;
 use App\EventHandler\Line\LineBaseEventHandler;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Trait\CarouselTemplatePaginationTrait;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\CarouselColumn;
@@ -20,6 +21,8 @@ use LINE\Webhook\Model\PostbackEvent;
 
 class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHandler
 {
+    use CarouselTemplatePaginationTrait;
+
     protected $bot;
     private $event;
     private $params;
@@ -70,9 +73,8 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
     private function handleGetUnsettledLendingListMethod(string $replyToken, string $userId)
     {
         $user = User::with('transactions')->where('line_user_id', $userId)->first();
-        $unsettledLendings = Transaction::where('user_id', $user->id)->unsettledLending()->get();
 
-        if ($unsettledLendings->isEmpty()) {
+        if (!Transaction::where('user_id', $user->id)->unsettledLending()->exists()) {
             $templateMessage = new TemplateMessage([
                 'type' => MessageType::TEMPLATE,
                 'altText' => '貸し(未清算)一覧',
@@ -91,6 +93,39 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
             ]);
         } else {
             $items = [];
+            $page = (int)$this->params['page'] ?? 1;
+            $unsettledLendingCount = Transaction::where('user_id', $user->id)->unsettledLending()->count();
+            $prevPageBtn = null;
+            $nextPageBtn = null;
+            $unsettledLendings = null;
+
+            if ($page == 1 && $unsettledLendingCount <= config('line.paginate_per_page')) {
+                $unsettledLendings = Transaction::where('user_id', $user->id)->unsettledLending()->orderBy('created_at', 'DESC')->get();
+            }
+
+            if ($page == 1 && $unsettledLendingCount > config('line.paginate_per_page')) {
+                $unsettledLendings = Transaction::where('user_id', $user->id)->unsettledLending()->orderBy('created_at', 'DESC')->take(5)->get();
+                $nextPageBtn = $this->getNextBtn($this->params['action_type'], $this->params['method'], $page);
+            }
+
+            if ($page > 1) {
+                $displayedCount = config('line.paginate_per_page') * ($page - 1);
+                $remainingCount = $unsettledLendingCount - $displayedCount;
+
+                if ($remainingCount <= config('line.paginate_per_page')) {
+                    $unsettledLendings = Transaction::where('user_id', $user->id)->unsettledLending()->orderBy('created_at', 'DESC')->skip($displayedCount)->take($remainingCount)->get();
+                    $prevPageBtn = $this->getPrevBtn($this->params['action_type'], $this->params['method'], $page);
+                } else {
+                    $unsettledLendings = Transaction::where('user_id', $user->id)->unsettledLending()->orderBy('created_at', 'DESC')->skip($displayedCount)->take(config('line.paginate_per_page'))->get();
+                    $prevPageBtn = $this->getPrevBtn($this->params['action_type'], $this->params['method'], $page);
+                    $nextPageBtn = $this->getNextBtn($this->params['action_type'], $this->params['method'], $page);
+                }
+            }
+
+            if (!is_null($prevPageBtn)) {
+                $items[] = $prevPageBtn;
+            }
+
             foreach ($unsettledLendings as $unsettledLending) {
                 $item = new CarouselColumn([
                     'title' => $unsettledLending->name,
@@ -111,6 +146,10 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
                 $items[] = $item;
             }
 
+            if (!is_null($nextPageBtn)) {
+                $items[] = $nextPageBtn;
+            }
+
             $templateMessage = new TemplateMessage([
                 'type' => MessageType::TEMPLATE,
                 'altText' => '貸し(未清算)一覧',
@@ -128,9 +167,8 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
     private function handleGetUnsettledBorrowingListMethod(string $replyToken, string $userId)
     {
         $user = User::with('transactions')->where('line_user_id', $userId)->first();
-        $unsettledBorrowings = Transaction::where('user_id', $user->id)->unsettledBorrowing()->get();
 
-        if ($unsettledBorrowings->isEmpty()) {
+        if (!Transaction::where('user_id', $user->id)->unsettledBorrowing()->exists()) {
             $templateMessage = new TemplateMessage([
                 'type' => MessageType::TEMPLATE,
                 'altText' => '借り(未清算)一覧',
@@ -149,6 +187,38 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
             ]);
         } else {
             $items = [];
+            $page = (int)$this->params['page'] ?? 1;
+            $unsettledBorrowingCount = Transaction::where('user_id', $user->id)->unsettledBorrowing()->count();
+            $prevPageBtn = null;
+            $nextPageBtn = null;
+            $unsettledBorrowings = null;
+    
+            if ($page == 1 && $unsettledBorrowingCount <= config('line.paginate_per_page')) {
+                $unsettledBorrowings = Transaction::where('user_id', $user->id)->unsettledBorrowing()->orderBy('created_at', 'DESC')->get();
+            }
+    
+            if ($page == 1 && $unsettledBorrowingCount > config('line.paginate_per_page')) {
+                $unsettledBorrowings = Transaction::where('user_id', $user->id)->unsettledBorrowing()->orderBy('created_at', 'DESC')->take(5)->get();
+                $nextPageBtn = $this->getNextBtn($this->params['action_type'], $this->params['method'], $page);
+            }
+    
+            if ($page > 1) {
+                $displayedCount = config('line.paginate_per_page') * ($page - 1);
+                $remainingCount = $unsettledBorrowingCount - $displayedCount;
+    
+                if ($remainingCount <= config('line.paginate_per_page')) {
+                    $unsettledBorrowings = Transaction::where('user_id', $user->id)->unsettledBorrowing()->orderBy('created_at', 'DESC')->skip($displayedCount)->take($remainingCount)->get();
+                    $prevPageBtn = $this->getPrevBtn($this->params['action_type'], $this->params['method'], $page);
+                } else {
+                    $unsettledBorrowings = Transaction::where('user_id', $user->id)->unsettledBorrowing()->orderBy('created_at', 'DESC')->skip($displayedCount)->take(config('line.paginate_per_page'))->get();
+                    $prevPageBtn = $this->getPrevBtn($this->params['action_type'], $this->params['method'], $page);
+                    $nextPageBtn = $this->getNextBtn($this->params['action_type'], $this->params['method'], $page);
+                }
+            }
+
+            if (!is_null($prevPageBtn)) {
+                $items[] = $prevPageBtn;
+            }
             foreach ($unsettledBorrowings as $unsettledBorrowing) {
                 $item = new CarouselColumn([
                     'title' => $unsettledBorrowing->name,
@@ -169,6 +239,10 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
                 $items[] = $item;
             }
 
+            if (!is_null($nextPageBtn)) {
+                $items[] = $nextPageBtn;
+            }
+
             $templateMessage = new TemplateMessage([
                 'type' => MessageType::TEMPLATE,
                 'altText' => '借り(未清算)一覧',
@@ -186,9 +260,8 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
     private function handleGetSettledListMethod(string $replyToken, string $userId)
     {
         $user = User::with('transactions')->where('line_user_id', $userId)->first();
-        $settledTransactions = Transaction::where('user_id', $user->id)->settled()->get();
 
-        if ($settledTransactions->isEmpty()) {
+        if (!Transaction::where('user_id', $user->id)->settled()->exists()) {
             $templateMessage = new TemplateMessage([
                 'type' => MessageType::TEMPLATE,
                 'altText' => '清算済み一覧',
@@ -207,6 +280,38 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
             ]);
         } else {
             $items = [];
+            $page = (int)$this->params['page'] ?? 1;
+            $settledTransactionCount = Transaction::where('user_id', $user->id)->settled()->count();
+            $prevPageBtn = null;
+            $nextPageBtn = null;
+            $settledTransactions = null;
+    
+            if ($page == 1 && $settledTransactionCount <= config('line.paginate_per_page')) {
+                $settledTransactions = Transaction::where('user_id', $user->id)->settled()->orderBy('created_at', 'DESC')->get();
+            }
+    
+            if ($page == 1 && $settledTransactionCount > config('line.paginate_per_page')) {
+                $settledTransactions = Transaction::where('user_id', $user->id)->settled()->orderBy('created_at', 'DESC')->take(5)->get();
+                $nextPageBtn = $this->getNextBtn($this->params['action_type'], $this->params['method'], $page);
+            }
+    
+            if ($page > 1) {
+                $displayedCount = config('line.paginate_per_page') * ($page - 1);
+                $remainingCount = $settledTransactionCount - $displayedCount;
+                $prevPageBtn = $this->getPrevBtn($this->params['action_type'], $this->params['method'], $page);
+    
+                if ($remainingCount <= config('line.paginate_per_page')) {
+                    $settledTransactions = Transaction::where('user_id', $user->id)->settled()->orderBy('created_at', 'DESC')->skip($displayedCount)->take($remainingCount)->get();
+                } else {
+                    $settledTransactions = Transaction::where('user_id', $user->id)->settled()->orderBy('created_at', 'DESC')->skip($displayedCount)->take(config('line.paginate_per_page'))->get();
+                    $nextPageBtn = $this->getNextBtn($this->params['action_type'], $this->params['method'], $page);
+                }
+            }
+    
+            if (!is_null($prevPageBtn)) {
+                $items[] = $prevPageBtn;
+            }
+
             foreach ($settledTransactions as $settledTransaction) {
                 $item = new CarouselColumn([
                     'title' => $settledTransaction->name . ' [' . $settledTransaction->type_name . ']',
@@ -226,6 +331,10 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
                 ]);
 
                 $items[] = $item;
+            }
+
+            if (!is_null($nextPageBtn)) {
+                $items[] = $nextPageBtn;
             }
 
             $templateMessage = new TemplateMessage([

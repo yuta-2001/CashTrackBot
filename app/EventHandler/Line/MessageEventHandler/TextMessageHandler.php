@@ -57,17 +57,17 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                                 new PostbackAction([
                                     'type' => ActionType::POSTBACK,
                                     'label' => '貸し(未清算)',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_unsettled_lending_list',
+                                    'data' => 'action_type=lending_and_borrowing&method=get_unsettled_lending_list&page=1',
                                 ]),
                                 new PostbackAction([
                                     'type' => ActionType::POSTBACK,
                                     'label' => '借り(未清算)',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_unsettled_borrowing_list',
+                                    'data' => 'action_type=lending_and_borrowing&method=get_unsettled_borrowing_list&page=1',
                                 ]),
                                 new PostbackAction([
                                     'type' => ActionType::POSTBACK,
                                     'label' => '清算済み',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_settled_list',
+                                    'data' => 'action_type=lending_and_borrowing&method=get_settled_list&page=1',
                                 ]),
                                 new URIAction([
                                     'type' => ActionType::URI,

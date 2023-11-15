@@ -212,9 +212,9 @@
                 fetch(endpoint, requestOptions)
                     .then(response => {
                         if (response.status === 200) {
-                            replyText = '貸借り記録の新規作成が完了しました！';
+                            replyText = '貸借り記録の作成が完了しました！';
                         } else {
-                            replyText = '貸借り記録の新規作成に失敗しました。';
+                            replyText = '貸借り記録の作成に失敗しました。';
                         }
 
                         liff.sendMessages([
