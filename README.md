@@ -17,6 +17,9 @@ LINEのBOTを利用して、お金の貸し借りを記録します。
 - MySQL
 - Docker (Docker-compose)
 
+## ホスティング
+- Xserver (nginx, mysql)
+
 ### その他
 - LINE Messaging API
 - LINE Login API
