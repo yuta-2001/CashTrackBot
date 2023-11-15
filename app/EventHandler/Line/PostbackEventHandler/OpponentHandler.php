@@ -7,6 +7,7 @@ use App\EventHandler\Line\LineBaseEventHandler;
 use App\Models\Opponent;
 use App\Models\User;
 use App\Service\ManageLiffTokenService;
+use App\Trait\CarouselTemplatePaginationTrait;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\CarouselColumn;
@@ -21,6 +22,8 @@ use LINE\Webhook\Model\PostbackEvent;
 
 class OpponentHandler extends LineBaseEventHandler implements EventHandler
 {
+    use CarouselTemplatePaginationTrait;
+
     protected $bot;
     private $event;
     private $params;
@@ -83,91 +86,26 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
             $nextPageBtn = null;
             $partners = null;
 
-            // 1ページ目かつ相手が10件以下の場合は全件表示
-            if ($page == 1 && $opponentCount <= 10) {
+            if ($page == 1 && $opponentCount <= config('line.paginate_per_page')) {
                 $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->get();
             }
 
-            // 1ページ目かつ相手が11件以上の場合は9件表示+次の10件を表示ボタンを表示
-            if ($page == 1 && $opponentCount > 10) {
-                $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->take(9)->get();
-                $nextPageBtn = new CarouselColumn([
-                    'title' => '次のページを表示',
-                    'text' => 'next',
-                    'actions' => [
-                        new PostbackAction([
-                            'type' => ActionType::POSTBACK,
-                            'label' => '表示',
-                            'data' => 'action_type=opponent&method=get_list&page=' . ($page + 1),
-                        ]),
-                        new PostbackAction([
-                            'type' => ActionType::POSTBACK,
-                            'label' => 'キャンセル',
-                            'data' => 'action_type=cancel',
-                        ]),
-                    ],
-                ]);
+            if ($page == 1 && $opponentCount > config('line.paginate_per_page')) {
+                $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->take(5)->get();
+                $nextPageBtn = $this->getNextBtn($this->params['action_type'], $this->params['method'], $page);
             }
 
-            // 2ページ目以降はこれまで表示した個数を計算し、最後のページかどうかを判定する
-            // 最後の場合は次へボタンを表示しない
-            // 最後ではない場合は前のページを表示ボタンと次のページを表示ボタンを表示する
             if ($page > 1) {
-                $displayedCount = 8 * ($page - 2) + 9;
+                $displayedCount = config('line.paginate_per_page') * ($page - 1);
                 $remainingCount = $opponentCount - $displayedCount;
 
-                if ($remainingCount < 10) {
+                if ($remainingCount <= config('line.paginate_per_page')) {
                     $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->skip($displayedCount)->take($remainingCount)->get();
-                    $prevPageBtn = new CarouselColumn([
-                        'title' => '前のページを表示',
-                        'text' => 'prev',
-                        'actions' => [
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
-                                'label' => '表示',
-                                'data' => 'action_type=opponent&method=get_list&page=' . ($page - 1),
-                            ]),
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
-                                'label' => 'キャンセル',
-                                'data' => 'action_type=cancel',
-                            ]),
-                        ],
-                    ]);
+                    $prevPageBtn = $this->getPrevBtn($this->params['action_type'], $this->params['method'], $page);
                 } else {
-                    $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->skip($displayedCount)->take(8)->get();
-                    $prevPageBtn = new CarouselColumn([
-                        'title' => '前のページを表示',
-                        'text' => 'prev',
-                        'actions' => [
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
-                                'label' => '表示',
-                                'data' => 'action_type=opponent&method=get_list&page=' . ($page - 1),
-                            ]),
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
-                                'label' => 'キャンセル',
-                                'data' => 'action_type=cancel',
-                            ]),
-                        ],
-                    ]);
-                    $nextPageBtn = new CarouselColumn([
-                        'title' => '次のページを表示',
-                        'text' => 'next',
-                        'actions' => [
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
-                                'label' => '表示',
-                                'data' => 'action_type=opponent&method=get_list&page=' . ($page + 1),
-                            ]),
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
-                                'label' => 'キャンセル',
-                                'data' => 'action_type=cancel',
-                            ]),
-                        ],
-                    ]);
+                    $partners = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->skip($displayedCount)->take(config('line.paginate_per_page'))->get();
+                    $prevPageBtn = $this->getPrevBtn($this->params['action_type'], $this->params['method'], $page);
+                    $nextPageBtn = $this->getNextBtn($this->params['action_type'], $this->params['method'], $page);
                 }
             }
 
