@@ -2,10 +2,19 @@
 
 namespace App\Http;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
+    protected function schedule(Schedule $schedule)
+    {
+        //supervisorが使えない環境用の代替運用：1分間隔でキューワーカーを起動。
+        $schedule->command('queue:work --tries=1 --stop-when-empty')
+            ->everyMinute()
+            ->withoutOverlapping();
+    }
+
     /**
      * The application's global HTTP middleware stack.
      *
