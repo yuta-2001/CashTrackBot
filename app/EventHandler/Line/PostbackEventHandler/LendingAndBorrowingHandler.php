@@ -366,7 +366,7 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
             'altText' => '貸し借り新規作成',
             'template' => new ButtonsTemplate([
                 'type' => TemplateType::BUTTONS,
-                'title' => '貸し借り新規作成リンク',
+                'title' => '貸し借り新規作成',
                 'text' => '「新規作成画面に進む」から貸し借りを登録してください。',
                 'actions' => [
                     new URIAction([

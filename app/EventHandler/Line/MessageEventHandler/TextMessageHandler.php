@@ -98,11 +98,6 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                                 'label' => '相手一覧',
                                 'data' => 'action_type=opponent&method=get_list&page=1',
                             ]),
-                            // new URIAction([
-                            //     'type' => ActionType::URI,
-                            //     'label' => '新規作成',
-                            //     'uri' => config('line.liff_urls.opponent_create') . '?liff_token=' . $liffOneTimeToken,
-                            // ]),
                             new PostbackAction([
                                 'type' => ActionType::POSTBACK,
                                 'label' => '新規作成',
