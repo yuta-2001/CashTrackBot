@@ -46,6 +46,14 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
             $this->handleGetListMethod($replyToken, $userId);
         }
 
+        if ($this->params['method'] === 'create') {
+            $this->handleCreateMethod($replyToken, $userId);
+        }
+
+        if ($this->params['method'] === 'edit') {
+            $this->handleEditMethod($replyToken, $userId);
+        }
+
         if ($this->params['method'] === 'delete_confirmation') {
             $this->handleDeleteConfirmationMethod($replyToken);
         }
@@ -72,14 +80,13 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
                         new PostbackAction([
                             'type' => ActionType::MESSAGE,
                             'label' => 'メニューに戻る',
-                            'text' => '相手管理',
+                            'text' => config('line.text_from_rich_menu.opponent'),
                         ]),
                     ],
                 ]),
             ]);
         } else {
             $items = [];
-            $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
             $page = (int)$this->params['page'] ?? 1;
             $opponentCount = Opponent::where('user_id', $user->id)->count();
             $prevPageBtn = null;
@@ -118,10 +125,10 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
                     'title' => $partner->name,
                     'text' => '作成日' . $partner->created_at,
                     'actions' => [
-                        new URIAction([
-                            'type' => ActionType::URI,
+                        new PostbackAction([
+                            'type' => ActionType::POSTBACK,
                             'label' => '編集',
-                            'uri' => config('line.liff_urls.opponent_edit') . '?itemId=' . $partner->id . '&liff_token=' . $liffOneTimeToken,
+                            'data' => 'action_type=opponent&method=edit&item_id=' . $partner->id,
                         ]),
                         new PostbackAction([
                             'type' => ActionType::POSTBACK,
@@ -149,6 +156,70 @@ class OpponentHandler extends LineBaseEventHandler implements EventHandler
 
         $this->replyMessage($replyToken, $templateMessage);
     }
+
+
+    private function handleCreateMethod(string $replyToken, string $userId)
+    {
+        $user = User::where('line_user_id', $userId)->first();
+        $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
+
+        $templateMessage = new TemplateMessage([
+            'type' => MessageType::TEMPLATE,
+            'altText' => '相手新規作成',
+            'template' => new ButtonsTemplate([
+                'type' => TemplateType::BUTTONS,
+                'title' => '相手新規作成',
+                'text' => '「新規作成画面に進む」から相手を登録してください。',
+                'actions' => [
+                    new URIAction([
+                        'type' => ActionType::URI,
+                        'label' => '新規作成画面に進む',
+                        'uri' => config('line.liff_urls.opponent_create') . '?liff_token=' . $liffOneTimeToken,
+                    ]),
+                    new PostbackAction([
+                        'type' => ActionType::MESSAGE,
+                        'label' => 'メニューに戻る',
+                        'text' => config('line.text_from_rich_menu.opponent'),
+                    ]),
+                ],
+            ]),
+        ]);
+
+        $this->replyMessage($replyToken, $templateMessage);
+    }
+
+
+    private function handleEditMethod(string $replyToken, string $userId)
+    {
+        $user = User::where('line_user_id', $userId)->first();
+        $opponentId = $this->params['item_id'];
+        $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
+        
+        $templateMessage = new TemplateMessage([
+            'type' => MessageType::TEMPLATE,
+            'altText' => '相手編集',
+            'template' => new ButtonsTemplate([
+                'type' => TemplateType::BUTTONS,
+                'title' => '相手編集',
+                'text' => '「編集画面に進む」から相手を登録してください。',
+                'actions' => [
+                    new URIAction([
+                        'type' => ActionType::URI,
+                        'label' => '編集画面に進む',
+                        'uri' => config('line.liff_urls.opponent_edit') . '?itemId=' . $opponentId . '&liff_token=' . $liffOneTimeToken,
+                    ]),
+                    new PostbackAction([
+                        'type' => ActionType::MESSAGE,
+                        'label' => 'メニューに戻る',
+                        'text' => config('line.text_from_rich_menu.opponent'),
+                    ]),
+                ],
+            ]),
+        ]);
+
+        $this->replyMessage($replyToken, $templateMessage);
+    }
+
 
     private function handleDeleteConfirmationMethod(string $replyToken)
     {

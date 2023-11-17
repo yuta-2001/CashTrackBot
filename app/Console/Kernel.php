@@ -12,7 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        //supervisorが使えない環境用の代替運用：1分間隔でキューワーカーを起動。
+        $schedule->command('queue:work --tries=1 --stop-when-empty')
+            ->everyMinute()
+            ->withoutOverlapping();
     }
 
     /**
