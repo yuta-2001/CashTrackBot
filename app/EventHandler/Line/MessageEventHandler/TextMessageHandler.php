@@ -11,7 +11,6 @@ use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\PostbackAction;
 use LINE\Clients\MessagingApi\Model\TemplateMessage;
-use LINE\Clients\MessagingApi\Model\URIAction;
 use LINE\Constants\ActionType;
 use LINE\Constants\MessageType;
 use LINE\Constants\TemplateType;
@@ -83,8 +82,6 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                 break;
 
             case config('line.text_from_rich_menu.opponent'):
-                $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
-
                 $templateMessage = new TemplateMessage([
                     'type' => MessageType::TEMPLATE,
                     'altText' => '相手管理メニュー',
