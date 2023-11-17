@@ -10,6 +10,7 @@ use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\PostbackAction;
 use LINE\Clients\MessagingApi\Model\TemplateMessage;
+use LINE\Clients\MessagingApi\Model\URIAction;
 use LINE\Constants\ActionType;
 use LINE\Constants\MessageType;
 use LINE\Constants\TemplateType;
@@ -49,15 +50,15 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             'title' => '貸借り管理メニュー',
                             'text' => 'メニューを選択してください。',
                             'actions' => [
-                                new PostbackAction([
+                                new URIAction([
                                     'type' => ActionType::URI,
-                                    'label' => '貸し借り記録一覧ページ',
-                                    'link' => config('line.liff_urls.lending_and_borrowing_index'),
+                                    'label' => '貸し借り記録',
+                                    'uri' => config('line.liff_urls.lending_and_borrowing_index'),
                                 ]),
-                                new PostbackAction([
+                                new URIAction([
                                     'type' => ActionType::URI,
-                                    'label' => '新規作成ページ',
-                                    'linik' => config('line.liff_urls.lending_and_borrowing_create'),
+                                    'label' => '新規作成',
+                                    'uri' => config('line.liff_urls.lending_and_borrowing_create'),
                                 ]),
                             ],
                         ]),
