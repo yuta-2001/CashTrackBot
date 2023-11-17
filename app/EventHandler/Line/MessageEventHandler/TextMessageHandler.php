@@ -6,7 +6,6 @@ use App\Models\Opponent;
 use App\Models\User;
 use App\EventHandler\EventHandler;
 use App\EventHandler\Line\LineBaseEventHandler;
-use App\Service\ManageLiffTokenService;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\PostbackAction;
@@ -51,24 +50,14 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             'text' => 'メニューを選択してください。',
                             'actions' => [
                                 new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '貸し(未清算)',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_unsettled_lending_list&page=1',
+                                    'type' => ActionType::URI,
+                                    'label' => '貸し借り記録一覧ページ',
+                                    'link' => config('line.liff_urls.lending_and_borrowing_index'),
                                 ]),
                                 new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '借り(未清算)',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_unsettled_borrowing_list&page=1',
-                                ]),
-                                new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '清算済み',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_settled_list&page=1',
-                                ]),
-                                new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '新規作成',
-                                    'data' => 'action_type=lending_and_borrowing&method=create',
+                                    'type' => ActionType::URI,
+                                    'label' => '新規作成ページ',
+                                    'linik' => config('line.liff_urls.lending_and_borrowing_create'),
                                 ]),
                             ],
                         ]),

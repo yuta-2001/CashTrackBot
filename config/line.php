@@ -14,6 +14,7 @@ return [
         'opponent_create' => env('LIFF_OPPONENT_CREATE_URL'),
         'opponent_edit' => env('LIFF_OPPONENT_EDIT_URL'),
         'lending_and_borrowing_create' => env('LIFF_LENDING_AND_BORROWING_CREATE_URL'),
+        'lending_and_borrowing_index' => env('LIFF_LENDING_AND_BORROWING_INDEX_URL'),
     ],
 
     'liff_ids' => [
