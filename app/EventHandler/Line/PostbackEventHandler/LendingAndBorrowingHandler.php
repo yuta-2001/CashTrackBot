@@ -6,6 +6,7 @@ use App\EventHandler\EventHandler;
 use App\EventHandler\Line\LineBaseEventHandler;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Service\ManageLiffTokenService;
 use App\Trait\CarouselTemplatePaginationTrait;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
@@ -13,6 +14,7 @@ use LINE\Clients\MessagingApi\Model\CarouselColumn;
 use LINE\Clients\MessagingApi\Model\CarouselTemplate;
 use LINE\Clients\MessagingApi\Model\PostbackAction;
 use LINE\Clients\MessagingApi\Model\TemplateMessage;
+use LINE\Clients\MessagingApi\Model\URIAction;
 use LINE\Constants\ActionType;
 use LINE\Constants\MessageType;
 use LINE\Constants\TemplateType;
@@ -51,6 +53,10 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
 
         if ($this->params['method'] === 'get_settled_list') {
             $this->handleGetSettledListMethod($replyToken, $userId);
+        }
+
+        if ($this->params['method'] === 'create') {
+            $this->handleCreateMethod($replyToken, $userId);
         }
 
         if ($this->params['method'] === 'change_to_settled') {
@@ -273,7 +279,7 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
                         new PostbackAction([
                             'type' => ActionType::MESSAGE,
                             'label' => 'メニューに戻る',
-                            'text' => '貸借り管理',
+                            'text' => config('line.text_from_rich_menu.lending_and_borrowing'),
                         ]),
                     ],
                 ]),
@@ -351,6 +357,36 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
     }
 
 
+    private function handleCreateMethod(string $replyToken, string $userId)
+    {
+        $user = User::where('line_user_id', $userId)->first();
+        $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
+        $templateMessage = new TemplateMessage([
+            'type' => MessageType::TEMPLATE,
+            'altText' => '貸し借り新規作成',
+            'template' => new ButtonsTemplate([
+                'type' => TemplateType::BUTTONS,
+                'title' => '貸し借り新規作成リンク',
+                'text' => '「新規作成画面に進む」から貸し借りを登録してください。',
+                'actions' => [
+                    new URIAction([
+                        'type' => ActionType::URI,
+                        'label' => '新規作成画面に進む',
+                        'uri' => config('line.liff_urls.lending_and_borrowing_create') . '?liff_token=' . $liffOneTimeToken,
+                    ]),
+                    new PostbackAction([
+                        'type' => ActionType::MESSAGE,
+                        'label' => 'メニューに戻る',
+                        'text' => config('line.text_from_rich_menu.lending_and_borrowing'),
+                    ]),
+                ],
+            ]),
+        ]);
+
+        $this->replyMessage($replyToken, $templateMessage);
+    }
+
+
     private function handleChangeToSettledMethod(string $replyToken)
     {
         $transaction = Transaction::find($this->params['item_id']);
@@ -368,7 +404,7 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
                     new PostbackAction([
                         'type' => ActionType::MESSAGE,
                         'label' => 'メニューに戻る',
-                        'text' => '貸借り管理',
+                        'text' => config('line.text_from_rich_menu.lending_and_borrowing'),
                     ]),
                 ],
             ]),
@@ -395,7 +431,7 @@ class LendingAndBorrowingHandler extends LineBaseEventHandler implements EventHa
                     new PostbackAction([
                         'type' => ActionType::MESSAGE,
                         'label' => 'メニューに戻る',
-                        'text' => '貸借り管理',
+                        'text' => config('line.text_from_rich_menu.lending_and_borrowing'),
                     ]),
                 ],
             ]),

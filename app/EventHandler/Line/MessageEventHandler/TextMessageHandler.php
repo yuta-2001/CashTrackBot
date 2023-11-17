@@ -43,9 +43,6 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
             case config('line.text_from_rich_menu.lending_and_borrowing'):
                 $opponents = Opponent::where('user_id', $user->id)->get();
                 if (!$opponents->isEmpty()) {
-                    // liff用のワンタイムトークンを生成
-                    $liffOneTimeToken = ManageLiffTokenService::generateLiffToken($user);
-
                     $templateMessage = new TemplateMessage([
                         'type' => MessageType::TEMPLATE,
                         'altText' => '貸借り管理メニュー',
@@ -69,10 +66,10 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                                     'label' => '清算済み',
                                     'data' => 'action_type=lending_and_borrowing&method=get_settled_list&page=1',
                                 ]),
-                                new URIAction([
-                                    'type' => ActionType::URI,
+                                new PostbackAction([
+                                    'type' => ActionType::POSTBACK,
                                     'label' => '新規作成',
-                                    'uri' => config('line.liff_urls.lending_and_borrowing_create') . '?liff_token=' . $liffOneTimeToken,
+                                    'data' => 'action_type=lending_and_borrowing&method=create',
                                 ]),
                             ],
                         ]),
@@ -101,10 +98,15 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                                 'label' => '相手一覧',
                                 'data' => 'action_type=opponent&method=get_list&page=1',
                             ]),
-                            new URIAction([
-                                'type' => ActionType::URI,
+                            // new URIAction([
+                            //     'type' => ActionType::URI,
+                            //     'label' => '新規作成',
+                            //     'uri' => config('line.liff_urls.opponent_create') . '?liff_token=' . $liffOneTimeToken,
+                            // ]),
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
                                 'label' => '新規作成',
-                                'uri' => config('line.liff_urls.opponent_create') . '?liff_token=' . $liffOneTimeToken,
+                                'data' => 'action_type=opponent&method=create',
                             ]),
                         ],
                     ]),
