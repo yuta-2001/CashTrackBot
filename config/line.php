@@ -54,4 +54,5 @@ return [
     'liff_channel_id' => env('LIFF_CHANNEL_ID'),
 
     'paginate_per_page' => 5,
+
 ];

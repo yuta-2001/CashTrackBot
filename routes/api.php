@@ -21,7 +21,7 @@ Route::post('/line/callback', [LineBotController::class, 'callback'])->name('lin
 Route::group([
     'prefix' => 'liff',
     'as' => 'liff.',
-    'middleware' => ['auth.liff'],
+    'middleware' => ['auth.liff', 'cors'],
 ], function () {
     Route::group([
         'prefix' => 'opponents',
