@@ -7,7 +7,6 @@ use App\EventHandler\Line\InvalidEventHandler;
 use App\EventHandler\Line\MessageEventHandler\TextMessageHandler;
 use App\EventHandler\Line\PostbackEventHandler\CancelHandler;
 use App\EventHandler\Line\PostbackEventHandler\ExplainHandler;
-use App\EventHandler\Line\PostbackEventHandler\LendingAndBorrowingHandler;
 use App\EventHandler\Line\PostbackEventHandler\OpponentHandler;
 use App\EventHandler\Line\UnFollowEventHandler;
 use App\Http\Controllers\Controller;
@@ -79,10 +78,6 @@ class LineBotController extends Controller
                     $postback = $event->getPostback();
                     $data = $postback->getData();
                     parse_str($data, $params);
-                    if ($params['action_type'] === 'lending_and_borrowing') {
-                        $handler = new LendingAndBorrowingHandler($bot, $event, $params);
-                    }
-
                     if ($params['action_type'] === 'opponent') {
                         $handler = new OpponentHandler($bot, $event, $params);
                     }

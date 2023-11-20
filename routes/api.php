@@ -21,7 +21,7 @@ Route::post('/line/callback', [LineBotController::class, 'callback'])->name('lin
 Route::group([
     'prefix' => 'liff',
     'as' => 'liff.',
-    'middleware' => ['auth.liff'],
+    'middleware' => ['auth.liff', 'cors'],
 ], function () {
     Route::group([
         'prefix' => 'opponents',
@@ -38,5 +38,6 @@ Route::group([
         Route::post('/', [TransactionController::class, 'store'])->name('store');
         Route::put('/{id}', [TransactionController::class, 'update'])->name('update');
         Route::delete('/{id}', [TransactionController::class, 'delete'])->name('delete');
+        Route::delete('/', [TransactionController::class, 'batchDelete'])->name('batchDelete');
     });
 });

@@ -6,11 +6,11 @@ use App\Models\Opponent;
 use App\Models\User;
 use App\EventHandler\EventHandler;
 use App\EventHandler\Line\LineBaseEventHandler;
-use App\Service\ManageLiffTokenService;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\PostbackAction;
 use LINE\Clients\MessagingApi\Model\TemplateMessage;
+use LINE\Clients\MessagingApi\Model\URIAction;
 use LINE\Constants\ActionType;
 use LINE\Constants\MessageType;
 use LINE\Constants\TemplateType;
@@ -44,31 +44,16 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                 if (!$opponents->isEmpty()) {
                     $templateMessage = new TemplateMessage([
                         'type' => MessageType::TEMPLATE,
-                        'altText' => '貸借り管理メニュー',
+                        'altText' => '貸借り管理',
                         'template' => new ButtonsTemplate([
                             'type' => TemplateType::BUTTONS,
-                            'title' => '貸借り管理メニュー',
-                            'text' => 'メニューを選択してください。',
+                            'title' => '貸借り管理',
+                            'text' => '下のボタンから貸し借り管理ページへ遷移します',
                             'actions' => [
-                                new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '貸し(未清算)',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_unsettled_lending_list&page=1',
-                                ]),
-                                new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '借り(未清算)',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_unsettled_borrowing_list&page=1',
-                                ]),
-                                new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '清算済み',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_settled_list&page=1',
-                                ]),
-                                new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '新規作成',
-                                    'data' => 'action_type=lending_and_borrowing&method=create',
+                                new URIAction([
+                                    'type' => ActionType::URI,
+                                    'label' => '貸し借り管理ページへ',
+                                    'uri' => config('line.liff_urls.lending_and_borrowing'),
                                 ]),
                             ],
                         ]),
