@@ -44,21 +44,16 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                 if (!$opponents->isEmpty()) {
                     $templateMessage = new TemplateMessage([
                         'type' => MessageType::TEMPLATE,
-                        'altText' => '貸借り管理メニュー',
+                        'altText' => '貸借り管理',
                         'template' => new ButtonsTemplate([
                             'type' => TemplateType::BUTTONS,
-                            'title' => '貸借り管理メニュー',
-                            'text' => 'メニューを選択してください。',
+                            'title' => '貸借り管理',
+                            'text' => '下のボタンから貸し借り管理ページへ遷移します',
                             'actions' => [
                                 new URIAction([
                                     'type' => ActionType::URI,
-                                    'label' => '貸し借り記録',
-                                    'uri' => config('line.liff_urls.lending_and_borrowing_index'),
-                                ]),
-                                new URIAction([
-                                    'type' => ActionType::URI,
-                                    'label' => '新規作成',
-                                    'uri' => config('line.liff_urls.lending_and_borrowing_create'),
+                                    'label' => '貸し借り管理ページへ',
+                                    'uri' => config('line.liff_urls.lending_and_borrowing'),
                                 ]),
                             ],
                         ]),
