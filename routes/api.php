@@ -38,5 +38,6 @@ Route::group([
         Route::post('/', [TransactionController::class, 'store'])->name('store');
         Route::put('/{id}', [TransactionController::class, 'update'])->name('update');
         Route::delete('/{id}', [TransactionController::class, 'delete'])->name('delete');
+        Route::delete('/', [TransactionController::class, 'batchDelete'])->name('batchDelete');
     });
 });

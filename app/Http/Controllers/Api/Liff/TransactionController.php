@@ -47,11 +47,35 @@ class TransactionController extends Controller
         ], 200);
     }
 
+    public function batchSettle(Request $request)
+    {
+        $user = $request->attributes->get('user');
+        $ids = $request->input('ids');
+        Transaction::where('user_id', $user->id)->whereIn('id', $ids)->update(['is_settled' => true]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'success',
+        ], 200);
+    }
+
     public function delete(Request $request, int $id)
     {
         $user = $request->attributes->get('user');
         $transaction = Transaction::where('user_id', $user->id)->where('id', $id)->first();
         $transaction->delete();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'success',
+        ], 200);
+    }
+
+    public function batchDelete(Request $request)
+    {
+        $user = $request->attributes->get('user');
+        $ids = $request->input('ids');
+        Transaction::where('user_id', $user->id)->whereIn('id', $ids)->delete();
 
         return response()->json([
             'status' => 200,
