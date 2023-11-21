@@ -51,7 +51,7 @@ class TransactionController extends Controller
     {
         $user = $request->attributes->get('user');
         $ids = $request->input('ids');
-        Transaction::where('user_id', $user->id)->whereIn('id', $ids)->update(['is_settled' => true]);
+        Transaction::where('user_id', $user->id)->whereIn('id', $ids)->where('is_settled', false)->update(['is_settled' => true]);
 
         return response()->json([
             'status' => 200,

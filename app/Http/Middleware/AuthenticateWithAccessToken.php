@@ -19,7 +19,7 @@ class AuthenticateWithAccessToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $accessToken = $request->query('accesstoken');
+        $accessToken = $request->query('accessToken');
 
         $lineUserId = $this->getLineUserIdFromAccessToken($accessToken);
         $user = User::where('line_user_id', $lineUserId)->first();

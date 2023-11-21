@@ -37,7 +37,8 @@ Route::group([
         Route::get('/', [TransactionController::class, 'index'])->name('index');
         Route::post('/', [TransactionController::class, 'store'])->name('store');
         Route::put('/{id}', [TransactionController::class, 'update'])->name('update');
+        Route::put('/batch-settle', [TransactionController::class, 'batchSettle'])->name('batchSettle');
         Route::delete('/{id}', [TransactionController::class, 'delete'])->name('delete');
-        Route::delete('/', [TransactionController::class, 'batchDelete'])->name('batchDelete');
+        Route::post('/batch-delete', [TransactionController::class, 'batchDelete'])->name('batchDelete');
     });
 });
