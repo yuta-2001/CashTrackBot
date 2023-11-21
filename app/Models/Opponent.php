@@ -13,4 +13,8 @@ class Opponent extends Model
         'user_id',
         'name',
     ];
+
+    protected $cast = [
+        'user_id' => 'integer',
+    ];
 }

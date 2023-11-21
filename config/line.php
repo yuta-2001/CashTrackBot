@@ -55,4 +55,5 @@ return [
 
     'paginate_per_page' => 5,
 
+    'frontend_domain' => env('FRONTEND_DOMAIN'),
 ];

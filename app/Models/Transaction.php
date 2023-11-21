@@ -20,7 +20,9 @@ class Transaction extends Model
     ];
 
     protected $casts = [
-        'is_settled' => 'boolean'
+        'is_settled' => 'boolean',
+        'type' => 'integer',
+        'amount' => 'integer',
     ];
 
     const TYPE_LENDING = 1;

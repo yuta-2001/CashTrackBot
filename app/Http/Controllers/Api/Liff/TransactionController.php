@@ -14,7 +14,7 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $user = $request->attributes->get('user');
-        $transactions = Transaction::where('user_id', $user->id)->get();
+        $transactions = Transaction::where('user_id', $user->id)->orderBy('created_at', 'DESC')->get();
 
         return TransactionResource::collection($transactions);
     }
@@ -33,7 +33,7 @@ class TransactionController extends Controller
         ], 200);
     }
 
-    public function update(UpdateRequest $request, int $id)
+    public function update(int $id, UpdateRequest $request)
     {
         $user = $request->attributes->get('user');
         $transaction = Transaction::where('user_id', $user->id)->where('id', $id)->first();
@@ -59,7 +59,7 @@ class TransactionController extends Controller
         ], 200);
     }
 
-    public function delete(Request $request, int $id)
+    public function delete(int $id, Request $request)
     {
         $user = $request->attributes->get('user');
         $transaction = Transaction::where('user_id', $user->id)->where('id', $id)->first();

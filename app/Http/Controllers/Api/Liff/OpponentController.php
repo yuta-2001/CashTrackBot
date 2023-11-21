@@ -12,7 +12,7 @@ class OpponentController extends Controller
     public function index(Request $request)
     {
         $user = $request->attributes->get('user');
-        $opponents = Opponent::where('user_id', $user->id)->get();
+        $opponents = Opponent::where('user_id', $user->id)->orderBy('created_at', 'DESC')->get();
 
         return OpponentResource::collection($opponents);
     }
