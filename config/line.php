@@ -11,8 +11,7 @@ return [
     ],
 
     'liff_urls' => [
-        'opponent_create' => env('LIFF_OPPONENT_CREATE_URL'),
-        'opponent_edit' => env('LIFF_OPPONENT_EDIT_URL'),
+        'opponent' => env('LIFF_OPPONENT_URL'),
         'lending_and_borrowing' => env('LIFF_LENDING_AND_BORROWING_URL'),
     ],
 

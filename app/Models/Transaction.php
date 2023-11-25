@@ -21,6 +21,7 @@ class Transaction extends Model
 
     protected $casts = [
         'is_settled' => 'boolean',
+        'opponent_id' => 'integer',
         'type' => 'integer',
         'amount' => 'integer',
     ];
