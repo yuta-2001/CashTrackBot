@@ -12,7 +12,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('transactions:delete-old-settled-transactions --tries=1 --stop-when-empty')
+            ->everyMinute()
+            ->withoutOverlapping();
     }
 
     /**

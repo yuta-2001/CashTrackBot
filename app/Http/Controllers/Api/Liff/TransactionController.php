@@ -14,10 +14,11 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $user = $request->attributes->get('user');
-        $transactions = Transaction::where('user_id', $user->id)->get();
+        $transactions = Transaction::where('user_id', $user->id)->orderBy('created_at', 'DESC')->get();
 
         return TransactionResource::collection($transactions);
     }
+
 
     public function store(StoreRequest $request)
     {
@@ -33,11 +34,23 @@ class TransactionController extends Controller
         ], 200);
     }
 
-    public function update(UpdateRequest $request, int $id)
+
+    public function update(int $id, UpdateRequest $request)
     {
         $user = $request->attributes->get('user');
         $transaction = Transaction::where('user_id', $user->id)->where('id', $id)->first();
         $data = $request->validated();
+
+        // is_settledがfalseからtrueに変わった場合、settled_atを更新する
+        if ($transaction->is_settled === false && $data['is_settled'] === true) {
+            $data['settled_at'] = now();
+        }
+
+        // is_settledがtrueからfalseに変わった場合、settled_atをnullにする
+        if ($transaction->is_settled === true && $data['is_settled'] === false) {
+            $data['settled_at'] = null;
+        }
+
         $transaction->update($data);
 
         return response()->json([
@@ -47,11 +60,18 @@ class TransactionController extends Controller
         ], 200);
     }
 
+
     public function batchSettle(Request $request)
     {
         $user = $request->attributes->get('user');
         $ids = $request->input('ids');
-        Transaction::where('user_id', $user->id)->whereIn('id', $ids)->update(['is_settled' => true]);
+        Transaction::where('user_id', $user->id)
+            ->whereIn('id', $ids)
+            ->where('is_settled', false)
+            ->update([
+                'is_settled' => true,
+                'settled_at' => now(),
+            ]);
 
         return response()->json([
             'status' => 200,
@@ -59,7 +79,8 @@ class TransactionController extends Controller
         ], 200);
     }
 
-    public function delete(Request $request, int $id)
+
+    public function delete(int $id, Request $request)
     {
         $user = $request->attributes->get('user');
         $transaction = Transaction::where('user_id', $user->id)->where('id', $id)->first();
@@ -70,6 +91,7 @@ class TransactionController extends Controller
             'message' => 'success',
         ], 200);
     }
+
 
     public function batchDelete(Request $request)
     {
