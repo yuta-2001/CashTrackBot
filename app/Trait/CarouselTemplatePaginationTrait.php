@@ -19,11 +19,6 @@ trait CarouselTemplatePaginationTrait
                     'label' => '表示',
                     'data' => 'action_type=' . $actionType . '&method=' . $method . '&page=' . $prevPage,
                 ]),
-                new PostbackAction([
-                    'type' => ActionType::POSTBACK,
-                    'label' => 'キャンセル',
-                    'data' => 'action_type=cancel',
-                ]),
             ],
         ]);
 
@@ -40,11 +35,6 @@ trait CarouselTemplatePaginationTrait
                     'type' => ActionType::POSTBACK,
                     'label' => '表示',
                     'data' => 'action_type=' . $actionType . '&method=' . $method . '&page=' . $nextPage,
-                ]),
-                new PostbackAction([
-                    'type' => ActionType::POSTBACK,
-                    'label' => 'キャンセル',
-                    'data' => 'action_type=cancel',
                 ]),
             ],
         ]);
