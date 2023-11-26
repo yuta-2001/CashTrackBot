@@ -13,6 +13,7 @@ class Transaction extends Model
         'user_id',
         'opponent_id',
         'is_settled',
+        'settled_at',
         'name',
         'amount',
         'type',
