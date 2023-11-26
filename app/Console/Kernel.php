@@ -16,6 +16,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('queue:work --tries=1 --stop-when-empty')
             ->everyMinute()
             ->withoutOverlapping();
+
+        $schedule->command('transactions:delete-old-settled-transactions --tries=1 --stop-when-empty')
+            ->everyMinute()
+            ->withoutOverlapping();
     }
 
     /**

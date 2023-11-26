@@ -2,15 +2,13 @@
 
 namespace App\EventHandler\Line\MessageEventHandler;
 
-use App\Models\Opponent;
-use App\Models\User;
 use App\EventHandler\EventHandler;
 use App\EventHandler\Line\LineBaseEventHandler;
-use App\Service\ManageLiffTokenService;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Model\ButtonsTemplate;
 use LINE\Clients\MessagingApi\Model\PostbackAction;
 use LINE\Clients\MessagingApi\Model\TemplateMessage;
+use LINE\Clients\MessagingApi\Model\URIAction;
 use LINE\Constants\ActionType;
 use LINE\Constants\MessageType;
 use LINE\Constants\TemplateType;
@@ -34,50 +32,32 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
     {
         $text = $this->textMessage->getText();
         $replyToken = $this->event->getReplyToken();
-        $source = $this->event->getSource();
-        $userId = $source->getUserId();
-        $user = User::where('line_user_id', $userId)->first();
 
         switch ($text) {
             case config('line.text_from_rich_menu.lending_and_borrowing'):
-                $opponents = Opponent::where('user_id', $user->id)->get();
-                if (!$opponents->isEmpty()) {
-                    $templateMessage = new TemplateMessage([
-                        'type' => MessageType::TEMPLATE,
-                        'altText' => '貸借り管理メニュー',
-                        'template' => new ButtonsTemplate([
-                            'type' => TemplateType::BUTTONS,
-                            'title' => '貸借り管理メニュー',
-                            'text' => 'メニューを選択してください。',
-                            'actions' => [
-                                new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '貸し(未清算)',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_unsettled_lending_list&page=1',
-                                ]),
-                                new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '借り(未清算)',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_unsettled_borrowing_list&page=1',
-                                ]),
-                                new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '清算済み',
-                                    'data' => 'action_type=lending_and_borrowing&method=get_settled_list&page=1',
-                                ]),
-                                new PostbackAction([
-                                    'type' => ActionType::POSTBACK,
-                                    'label' => '新規作成',
-                                    'data' => 'action_type=lending_and_borrowing&method=create',
-                                ]),
-                            ],
-                        ]),
-                    ]);
+                $templateMessage = new TemplateMessage([
+                    'type' => MessageType::TEMPLATE,
+                    'altText' => '貸借り管理',
+                    'template' => new ButtonsTemplate([
+                        'type' => TemplateType::BUTTONS,
+                        'title' => '貸借り管理',
+                        'text' => "メニューを選択してください。",
+                        'actions' => [
+                            new URIAction([
+                                'type' => ActionType::URI,
+                                'label' => '貸し借り管理ページ',
+                                'uri' => config('line.liff_urls.lending_and_borrowing'),
+                            ]),
+                            new PostbackAction([
+                                'type' => ActionType::POSTBACK,
+                                'label' => 'メッセージで確認',
+                                'data' => 'action_type=lending_and_borrowing&method=get_unsettled_list&page=1',
+                            ]),
+                        ],
+                    ]),
+                ]);
 
-                    $this->replyMessage($replyToken, $templateMessage);
-                } else {
-                    $this->replyText($replyToken, '貸し借りを管理するには、相手を先に登録してください。');
-                }
+                $this->replyMessage($replyToken, $templateMessage);
 
                 break;
 
@@ -90,15 +70,10 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                         'title' => '相手管理メニュー',
                         'text' => 'メニューを選択してください。',
                         'actions' => [
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
-                                'label' => '相手一覧',
-                                'data' => 'action_type=opponent&method=get_list&page=1',
-                            ]),
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
-                                'label' => '新規作成',
-                                'data' => 'action_type=opponent&method=create',
+                            new URIAction([
+                                'type' => ActionType::URI,
+                                'label' => '相手管理ページ',
+                                'uri' => config('line.liff_urls.opponent'),
                             ]),
                         ],
                     ]),

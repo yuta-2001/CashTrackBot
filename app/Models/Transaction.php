@@ -13,6 +13,7 @@ class Transaction extends Model
         'user_id',
         'opponent_id',
         'is_settled',
+        'settled_at',
         'name',
         'amount',
         'type',
@@ -20,7 +21,10 @@ class Transaction extends Model
     ];
 
     protected $casts = [
-        'is_settled' => 'boolean'
+        'is_settled' => 'boolean',
+        'opponent_id' => 'integer',
+        'type' => 'integer',
+        'amount' => 'integer',
     ];
 
     const TYPE_LENDING = 1;

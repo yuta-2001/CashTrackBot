@@ -11,48 +11,61 @@ return [
     ],
 
     'liff_urls' => [
-        'opponent_create' => env('LIFF_OPPONENT_CREATE_URL'),
-        'opponent_edit' => env('LIFF_OPPONENT_EDIT_URL'),
-        'lending_and_borrowing_create' => env('LIFF_LENDING_AND_BORROWING_CREATE_URL'),
-    ],
-
-    'liff_ids' => [
-        'opponent_create' => env('LIFF_OPPONENT_CREATE_LIFF_ID'),
-        'opponent_edit' => env('LIFF_OPPONENT_EDIT_LIFF_ID'),
-        'lending_and_borrowing_create' => env('LIFF_LENDING_AND_BORROWING_CREATE_LIFF_ID'),
+        'opponent' => env('LIFF_OPPONENT_URL'),
+        'lending_and_borrowing' => env('LIFF_LENDING_AND_BORROWING_URL'),
     ],
 
     'explanation' => [
         'overview' => [
             'title' => 'LINE BOTの概要',
-            'content' => "このLINE BOTは、貸し借りの記録を管理するためのBOTです。\nリッチメニューの「相手管理」から相手を作成=>「貸し借り管理」から貸し借りの記録を作成することができます。",
+            'content' => "
+            このアカウントはお金の貸し借りを管理するためのLINE BOTです。\n
+            このアカウントを友達登録すると、LINEのリッチメニューから貸し借りの記録を作成することができます。\n
+            お金貸し借りの記録はLINEのブラウザ上で管理することができます。\n
+            貸借り状況の簡単な確認等はLINE BOTとのメッセージ内で確認することができます。\n
+            ",
         ],
         'how_to_manage_lending_and_borrowing' => [
             'title' => '記録の作成・確認方法',
-            'content' => "リッチメニューの「貸し借り管理」から貸し借りの記録を作成することができます。\nまた、あらかじめリッチメニューの「相手管理」から相手を作成しておく必要があります。\n記録を作成する際は、リッチメニューの「貸借り管理」=>「新規作成」から作成することができます。\n記録を確認する際は、リッチメニューの「貸借り管理」=>「全て」「貸し(未清算)」「借り(未清算)」から確認することができます。\n貸し借りの記録は、「作成」「編集」「削除」が可能です。\n一度削除した記録を復元することはできませんので、ご注意ください。",
+            'content' => "
+            1️⃣記録の作成・編集・削除\n
+            LINEのリッチメニューから「貸借り管理」を選択します。\n
+            選択すると「貸借り管理ページ」と「メッセージで確認」という2つの選択肢が表示されます。\n
+            「貸借り管理ページ」を選択すると、LINEのブラウザに遷移し、そちらで作成・編集・削除等を行うことができます。\n
+            \n
+            2️⃣記録の確認\n
+            記録の確認方法は2つあります。\n
+            1つ目は「貸借り管理ページ」で確認する方法です。\n
+            2つ目は「メッセージで確認」を選択する方法です。\n
+            「メッセージで確認」を選択すると、未清算の貸借り記録がある相手の一覧が表示されます。\n
+            また、貸借りの状況を確認でき、一括で清算することもできます。
+            ",
         ],
         'how_to_manage_opponent' => [
             'title' => '相手管理方法',
-            'content' => 'リッチメニューの「相手管理」から相手の作成、編集、削除が可能です。相手の削除を行うと、その相手との貸し借りの記録も削除されます。',
+            'content' => "
+            リッチメニューの「相手管理」を選択します。\n
+            選択すると「相手管理ページ」という選択肢が表示されます。\n
+            「相手管理ページ」を選択すると、LINEのブラウザに遷移し、そちらで相手の作成や編集等を行うことができます。
+            ",
         ],
         'caution' => [
             'title' => '注意事項',
-            'content' => "1️⃣相手を削除した場合、その相手との貸し借りの記録も削除されます。\n2️⃣このアカウントをブロックした場合、これまで作成した記録は失われます。\n3️⃣一度「削除」や「編集」をしたデータについてはもとに戻すことができません。",
+            'content' => "
+            1️⃣相手の削除を行うと、その相手との貸借り記録も全て削除されます。\n
+            2️⃣清算済みにした貸借りの記録は３日間で自動的に削除されます。\n
+            3️⃣このアカウントをブロックした場合、これまでの記録はすべて削除されます。\n
+            ",
         ],
     ],
 
     'text_from_liff' => [
-        'opponent_create' => '相手の新規作成が完了しました！',
-        'opponent_create_error' => '相手の新規作成に失敗しました。',
-        'opponent_edit' => '相手の編集が完了しました！',
-        'opponent_edit_error' => '相手の編集に失敗しました。',
-        'lending_and_borrowing_create' => '貸借り記録の作成が完了しました！',
-        'lending_and_borrowing_create_error' => '貸借り記録の作成に失敗しました。',
+        'error' => 'エラーが発生しました。時間を空けて再度お試しください。',
     ],
-
-    'liff_token_expiration_minutes' => 20,
 
     'liff_channel_id' => env('LIFF_CHANNEL_ID'),
 
     'paginate_per_page' => 5,
+
+    'frontend_domain' => env('FRONTEND_DOMAIN'),
 ];
