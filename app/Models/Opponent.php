@@ -17,4 +17,9 @@ class Opponent extends Model
     protected $cast = [
         'user_id' => 'integer',
     ];
+
+    public function transactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }
