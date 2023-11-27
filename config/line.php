@@ -10,11 +10,6 @@ return [
         'how_to_use' => '使い方',
     ],
 
-    'liff_urls' => [
-        'opponent' => env('LIFF_OPPONENT_URL'),
-        'lending_and_borrowing' => env('LIFF_LENDING_AND_BORROWING_URL'),
-    ],
-
     'explanation' => [
         'overview' => [
             'title' => 'LINE BOTの概要',
@@ -42,5 +37,6 @@ return [
 
     'paginate_per_page' => 5,
 
+    'liff_url' => env('LIFF_URL'),
     'frontend_domain' => env('FRONTEND_DOMAIN'),
 ];

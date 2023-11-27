@@ -16,8 +16,7 @@ class CorsMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $allowedUrls = [
-            config('line.liff_urls.lending_and_borrowing'),
-            config('line.liff_urls.opponent'),
+            config('line.liff_url'),
             config('line.frontend_domain'),
         ];
         $origin = $request->headers->get('Origin');
