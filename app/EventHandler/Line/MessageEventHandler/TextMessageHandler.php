@@ -46,7 +46,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             new URIAction([
                                 'type' => ActionType::URI,
                                 'label' => '貸し借り管理ページ',
-                                'uri' => config('line.liff_urls.lending_and_borrowing'),
+                                'uri' => config('line.liff_urls.lending_and_borrowing') . '?page=transactions',
                             ]),
                             new PostbackAction([
                                 'type' => ActionType::POSTBACK,
@@ -73,7 +73,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             new URIAction([
                                 'type' => ActionType::URI,
                                 'label' => '相手管理ページ',
-                                'uri' => config('line.liff_urls.opponent'),
+                                'uri' => config('line.liff_url') . '?page=opponents',
                             ]),
                         ],
                     ]),
