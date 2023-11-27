@@ -79,6 +79,7 @@ class LineBotController extends Controller
                     $postback = $event->getPostback();
                     $data = $postback->getData();
                     parse_str($data, $params);
+
                     if ($params['action_type'] === 'lending_and_borrowing') {
                         $handler = new LendingAndBorrowingHandler($bot, $event, $params);
                     }

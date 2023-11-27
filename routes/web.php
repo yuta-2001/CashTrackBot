@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Controllers\Liff\OpponentController;
-use App\Http\Controllers\Liff\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,27 +17,3 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// LIFFアプリケーションURL
-Route::group([
-    'prefix' => 'liff',
-    'as' => 'liff.',
-], function () {
-    Route::group([
-        'prefix' => 'opponent',
-        'as' => 'opponent.',
-    ], function () {
-        Route::get('/create-screen', [OpponentController::class, 'showCreateScreen'])->name('createScreen');
-        Route::post('/store', [OpponentController::class, 'store'])->name('store');
-        Route::get('/edit-screen', [OpponentController::class, 'showEditScreen'])->name('editScreen');
-        Route::post('/update', [OpponentController::class, 'update'])->name('update');
-    });
-
-    Route::group([
-        'prefix' => 'lending-and-borrowing',
-        'as' => 'lendingAndBorrowing.',
-    ], function () {
-        Route::get('/create-screen', [TransactionController::class, 'showCreateScreen'])->name('createScreen');
-        Route::post('/store', [TransactionController::class, 'store'])->name('store');
-    });
-
-});
