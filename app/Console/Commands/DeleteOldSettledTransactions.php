@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Transaction;
 use Illuminate\Console\Command;
 
 class DeleteOldSettledTransactions extends Command
@@ -25,7 +26,7 @@ class DeleteOldSettledTransactions extends Command
      */
     public function handle()
     {
-        $dateThreshold = Carbon::now()->subDays(5);
+        $dateThreshold = Carbon::now()->subDays(3);
 
         Transaction::settled()
             ->where('settled_at', '<', $dateThreshold)
