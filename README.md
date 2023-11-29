@@ -13,7 +13,7 @@ LINEのBOTを利用して、お金の貸し借りを記録します。
 相手を作成し、その相手に対する貸し借り記録をつけることができます。
 
 ## QR
-
+![line_qr](https://github.com/yuta-2001/CashTrackBot/assets/85932615/4f45fc3c-e676-4737-97ff-012b48bd3ed8)
 
 ## デモ
 ![demo_video](https://github.com/yuta-2001/CashTrackBot/assets/85932615/4d3c3d06-d007-42b7-8c12-5e1c26c9ed20)
