@@ -1,12 +1,12 @@
 # お金貸し借り管理 LINE BOT
 
-## リポジトリ
+## フロントエンドリポジトリ
 
-フロントエンド: https://github.com/yuta-2001/CashTrackBotFrontEnd
-サーバーサイド: このリポジトリ
+https://github.com/yuta-2001/CashTrackBotFrontEnd
 
 ## 構成
 
+<img width="822" alt="application_structure" src="https://github.com/yuta-2001/CashTrackBot/assets/85932615/ced0a667-11bc-41d4-a727-a5d7dda1e435">
 
 ## アプリケーション概要
 LINEのBOTを利用して、お金の貸し借りを記録します。
@@ -37,3 +37,7 @@ Line Messaging API
 Line Login API
 Docker-compose (ローカルのみ)
 Ngrok
+
+## 記事
+
+https://qiita.com/yuta-2001/items/e4543dc0b4dc3071d40a
