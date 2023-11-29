@@ -1,30 +1,38 @@
 # お金貸し借り管理 LINE BOT
 
+## リポジトリ
+
+フロントエンド: https://github.com/yuta-2001/CashTrackBotFrontEnd
+サーバーサイド: このリポジトリ
+
+## 構成
+
+
 ## アプリケーション概要
 LINEのBOTを利用して、お金の貸し借りを記録します。
 相手を作成し、その相手に対する貸し借り記録をつけることができます。
 
+## デモ
+
 ## 使用技術
 ### サーバーサイド
-- PHP (Laravel)
+PHP (Laravel)
 
 ### フロントエンド
-- LIFF (LINE FRONTEND FRAMEWORK)
-- HTML/CSS
-- JavaScript
-- tailwind css => 別リポジトリ
-- typeScript => 別リポジトリ
-- Next.js => 別リポジトリ
+TypeScript (Next.js v.14 app router)
+Tailwind CSS
+Line Frontend Framework
 
-### データベース・インフラ
-- MySQL
-- Docker (Docker-compose)
+### データベース
+MySQL
 
-### ホスティング
-- Xserver (nginx, mysql)
+### デプロイ先
+Xserver
+Vercel
 
 ### その他
-- LINE Messaging API
-- LINE Login API
-- LINE Front-end Framework => 別リポジトリ
-- ngrok
+Git/Github
+Line Messaging API
+Line Login API
+Docker-compose (ローカルのみ)
+Ngrok
