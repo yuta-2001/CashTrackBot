@@ -46,7 +46,7 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             new URIAction([
                                 'type' => ActionType::URI,
                                 'label' => '貸し借り管理ページ',
-                                'uri' => config('line.liff_url') . '?page=transactions',
+                                'uri' => config('line.liff_url'),
                             ]),
                             new PostbackAction([
                                 'type' => ActionType::POSTBACK,
@@ -59,27 +59,6 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
 
                 $this->replyMessage($replyToken, $templateMessage);
 
-                break;
-
-            case config('line.text_from_rich_menu.opponent'):
-                $templateMessage = new TemplateMessage([
-                    'type' => MessageType::TEMPLATE,
-                    'altText' => '相手管理メニュー',
-                    'template' => new ButtonsTemplate([
-                        'type' => TemplateType::BUTTONS,
-                        'title' => '相手管理メニュー',
-                        'text' => 'メニューを選択してください。',
-                        'actions' => [
-                            new URIAction([
-                                'type' => ActionType::URI,
-                                'label' => '相手管理ページ',
-                                'uri' => config('line.liff_url') . '?page=opponents',
-                            ]),
-                        ],
-                    ]),
-                ]);
-
-                $this->replyMessage($replyToken, $templateMessage);
                 break;
 
             case config('line.text_from_rich_menu.how_to_use'):
