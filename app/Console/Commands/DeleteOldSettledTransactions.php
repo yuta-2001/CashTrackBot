@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class DeleteOldSettledTransactions extends Command
