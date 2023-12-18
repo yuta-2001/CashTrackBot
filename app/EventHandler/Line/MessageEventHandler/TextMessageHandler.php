@@ -82,11 +82,6 @@ class TextMessageHandler extends LineBaseEventHandler implements EventHandler
                             ]),
                             new PostbackAction([
                                 'type' => ActionType::POSTBACK,
-                                'label' => config('line.explanation.how_to_manage_opponent.title'),
-                                'data' => 'action_type=explanation&method=how_to_manage_opponent',
-                            ]),
-                            new PostbackAction([
-                                'type' => ActionType::POSTBACK,
                                 'label' => config('line.explanation.caution.title'),
                                 'data' => 'action_type=explanation&method=caution',
                             ]),
