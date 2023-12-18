@@ -6,7 +6,6 @@ return [
 
     'text_from_rich_menu' => [
         'lending_and_borrowing' => '貸借り管理',
-        'opponent' => '相手管理',
         'how_to_use' => '使い方',
     ],
 
