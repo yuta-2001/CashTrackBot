@@ -173,7 +173,14 @@ class TransactionController extends Controller
         });
 
         $storeFolderPath = storage_path('app/public/bills/' . $userId);
+
+        // フォルダがなければ作成する
+        if (!file_exists($storeFolderPath)) {
+            mkdir($storeFolderPath, 0755, true);
+        }
+
         $image->toPng()->save($storeFolderPath . '/' . $filename);
+
 
         return response()->json([
             'status' => 200,
