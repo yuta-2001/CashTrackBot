@@ -118,12 +118,13 @@ class TransactionController extends Controller
         $borrowAmount = $request->input('borrow_amount');
         $lendAmount = $request->input('lend_amount');
         $createdAt = now()->format('Y/m/d');
+        $fileCreatedAt = now()->format('Ymd');
 
         $userId = $request->attributes->get('user')->id;
 
         // 情報をファイル名に含める
         // => 同じ情報が渡ってきた場合、すでに生成済みの画像を返す
-        $filename = $opponentId . '_' . $opponentName . '_' . $totalAmount . '_' . $borrowAmount . '_' . $lendAmount . '_' . $createdAt . '.png';
+        $filename = $opponentId . '_' . $opponentName . '_' . $totalAmount . '_' . $borrowAmount . '_' . $lendAmount . '_' . $fileCreatedAt . '.png';
 
         if (Storage::disk('public')->exists('bills/' . $userId . '/' . $filename)) {
             return response()->json([
