@@ -10,6 +10,8 @@ use App\Http\Requests\Transaction\UpdateRequest;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManager;
+use Illuminate\Support\Facades\Storage;
+
 
 class TransactionController extends Controller
 {
@@ -110,15 +112,32 @@ class TransactionController extends Controller
 
     public function generateBill(GenerateBillRequest $request): \Illuminate\Http\JsonResponse
     {
-        $toUser = $request->input('to_user');
-        $amount = '¥ ' . $request->input('total_amount');
-        $borrowAmount = '¥ ' . $request->input('borrow_amount');
-        $lendAmount = '¥ ' . $request->input('lend_amount');
+        $opponentId = $request->input('opponent_id');
+        $opponentName = $request->input('opponent_name');
+        $totalAmount = $request->input('total_amount');
+        $borrowAmount = $request->input('borrow_amount');
+        $lendAmount = $request->input('lend_amount');
         $createdAt = now()->format('Y/m/d');
+
+        $userId = $request->attributes->get('user')->id;
+
+        // 情報をファイル名に含める
+        // => 同じ情報が渡ってきた場合、すでに生成済みの画像を返す
+        $filename = $opponentId . '_' . $opponentName . '_' . $totalAmount . '_' . $borrowAmount . '_' . $lendAmount . '_' . $createdAt . '.png';
+
+        if (Storage::disk('public')->exists('bills/' . $userId . '/' . $filename)) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'success',
+                'data' => [
+                    'url' => Storage::disk('public')->url('bills/' . $userId . '/' . $filename),
+                ],
+            ], 200);
+        };
 
         $image = ImageManager::gd()->read(public_path('template.png'));
 
-        $image->text($toUser, 210, 238, function ($font) {
+        $image->text($opponentName, 210, 238, function ($font) {
             $font->filename(public_path('fonts/NotoSansJP-SemiBold.ttf'));
             $font->color('#000000');
             $font->align('center');
@@ -132,37 +151,35 @@ class TransactionController extends Controller
             $font->size(22);
         });
 
-        $image->text($amount, 670, 378, function ($font) {
+        $image->text('¥ ' . $totalAmount, 670, 378, function ($font) {
             $font->filename(public_path('fonts/NotoSansJP-SemiBold.ttf'));
             $font->color('#000000');
             $font->align('center');
             $font->size(48);
         });
 
-        $image->text($borrowAmount, 645, 590, function ($font) {
+        $image->text('¥ ' . $borrowAmount, 645, 590, function ($font) {
             $font->filename(public_path('fonts/NotoSansJP-Medium.ttf'));
             $font->color('#000000');
             $font->align('center');
             $font->size(30);
         });
 
-        $image->text($lendAmount, 645, 650, function ($font) {
+        $image->text('¥ ' . $lendAmount, 645, 650, function ($font) {
             $font->filename(public_path('fonts/NotoSansJP-Medium.ttf'));
             $font->color('#000000');
             $font->align('center');
             $font->size(30);
         });
 
-        $billFolderPath = storage_path('app/public/bills/');
-        $userId = $request->attributes->get('user')->id;
-        $filename = 'bill_' . now()->format('YmdHis');
-        $image->toPng()->save(storage_path('app/public/' . $billFolderPath . $userId . '/' . $filename));
+        $storeFolderPath = storage_path('app/public/bills/' . $userId);
+        $image->toPng()->save($storeFolderPath . '/' . $filename);
 
         return response()->json([
             'status' => 200,
             'message' => 'success',
             'data' => [
-                'url' => asset('storage/' . $filename),
+                'url' => Storage::disk('public')->url('bills/' . $userId . '/' . $filename),
             ],
         ], 200);
     }
