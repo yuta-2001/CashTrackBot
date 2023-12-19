@@ -4,14 +4,18 @@ namespace App\Http\Controllers\Api\Liff;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TransactionResource;
+use App\Http\Requests\Transaction\GenerateBillRequest;
 use App\Http\Requests\Transaction\StoreRequest;
 use App\Http\Requests\Transaction\UpdateRequest;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Intervention\Image\ImageManager;
+use Illuminate\Support\Facades\Storage;
+
 
 class TransactionController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $user = $request->attributes->get('user');
         $transactions = Transaction::where('user_id', $user->id)->orderBy('created_at', 'DESC')->get();
@@ -20,7 +24,7 @@ class TransactionController extends Controller
     }
 
 
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->attributes->get('user');
         $data = $request->validated();
@@ -35,7 +39,7 @@ class TransactionController extends Controller
     }
 
 
-    public function update(int $id, UpdateRequest $request)
+    public function update(int $id, UpdateRequest $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->attributes->get('user');
         $transaction = Transaction::where('user_id', $user->id)->where('id', $id)->first();
@@ -61,7 +65,7 @@ class TransactionController extends Controller
     }
 
 
-    public function batchSettle(Request $request)
+    public function batchSettle(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->attributes->get('user');
         $ids = $request->input('ids');
@@ -80,7 +84,7 @@ class TransactionController extends Controller
     }
 
 
-    public function delete(int $id, Request $request)
+    public function delete(int $id, Request $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->attributes->get('user');
         $transaction = Transaction::where('user_id', $user->id)->where('id', $id)->first();
@@ -102,6 +106,81 @@ class TransactionController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'success',
+        ], 200);
+    }
+
+
+    public function generateBill(GenerateBillRequest $request): \Illuminate\Http\JsonResponse
+    {
+        $opponentId = $request->input('opponent_id');
+        $opponentName = $request->input('opponent_name');
+        $totalAmount = $request->input('total_amount');
+        $borrowAmount = $request->input('borrow_amount');
+        $lendAmount = $request->input('lend_amount');
+        $createdAt = now()->format('Y/m/d');
+
+        $userId = $request->attributes->get('user')->id;
+
+        // 情報をファイル名に含める
+        // => 同じ情報が渡ってきた場合、すでに生成済みの画像を返す
+        $filename = $opponentId . '_' . $opponentName . '_' . $totalAmount . '_' . $borrowAmount . '_' . $lendAmount . '_' . $createdAt . '.png';
+
+        if (Storage::disk('public')->exists('bills/' . $userId . '/' . $filename)) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'success',
+                'data' => [
+                    'url' => Storage::disk('public')->url('bills/' . $userId . '/' . $filename),
+                ],
+            ], 200);
+        };
+
+        $image = ImageManager::gd()->read(public_path('template.png'));
+
+        $image->text($opponentName, 210, 238, function ($font) {
+            $font->filename(public_path('fonts/NotoSansJP-SemiBold.ttf'));
+            $font->color('#000000');
+            $font->align('center');
+            $font->size(40);
+        });
+
+        $image->text($createdAt, 905, 178, function ($font) {
+            $font->filename(public_path('fonts/NotoSansJP-Medium.ttf'));
+            $font->color('#000000');
+            $font->align('center');
+            $font->size(22);
+        });
+
+        $image->text('¥ ' . $totalAmount, 670, 378, function ($font) {
+            $font->filename(public_path('fonts/NotoSansJP-SemiBold.ttf'));
+            $font->color('#000000');
+            $font->align('center');
+            $font->size(48);
+        });
+
+        $image->text('¥ ' . $borrowAmount, 645, 590, function ($font) {
+            $font->filename(public_path('fonts/NotoSansJP-Medium.ttf'));
+            $font->color('#000000');
+            $font->align('center');
+            $font->size(30);
+        });
+
+        $image->text('¥ ' . $lendAmount, 645, 650, function ($font) {
+            $font->filename(public_path('fonts/NotoSansJP-Medium.ttf'));
+            $font->color('#000000');
+            $font->align('center');
+            $font->size(30);
+        });
+
+        $storeFolderPath = storage_path('app/public/bills/' . $userId);
+        $image->toPng()->save($storeFolderPath . '/' . $filename);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'success',
+            'data' => [
+                'url' => Storage::disk('public')->url('bills/' . $userId . '/' . $filename),
+            ],
         ], 200);
     }
 }

@@ -43,5 +43,6 @@ Route::group([
         Route::put('/batch-settle', [TransactionController::class, 'batchSettle'])->name('batchSettle');
         Route::put('/{id}', [TransactionController::class, 'update'])->name('update');
         Route::delete('/{id}', [TransactionController::class, 'delete'])->name('delete');
+        Route::post('/generate-bill', [TransactionController::class, 'generateBill'])->name('generateBill');
     });
 });
