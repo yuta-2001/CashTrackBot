@@ -22,8 +22,9 @@ class GenerateBillRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'to_user' => ['required', 'string'],
-            'total_amount' => ['required', 'integer'],
+            'opponent_id' => ['required', 'integer'],
+            'opponent_name' => ['required', 'string'],
+            'total_amount' => ['required', 'integer', 'min:0'],
             'borrow_amount' => ['required', 'integer'],
             'lend_amount' => ['required', 'integer'],
         ];
