@@ -124,7 +124,7 @@ class TransactionController extends Controller
 
         // 情報をファイル名に含める
         // => 同じ情報が渡ってきた場合、すでに生成済みの画像を返す
-        $filename = $opponentId . '_' . $opponentName . '_' . $totalAmount . '_' . $borrowAmount . '_' . $lendAmount . '_' . $fileCreatedAt . '.png';
+        $filename = preg_replace('/[ \\/:*?"<>|]+/', '', $opponentId . '_' .  $opponentName . '_' . $totalAmount . '_' . $borrowAmount . '_' . $lendAmount . '_' . $fileCreatedAt . '.png');
 
         if (Storage::disk('public')->exists('bills/' . $userId . '/' . $filename)) {
             return response()->json([
