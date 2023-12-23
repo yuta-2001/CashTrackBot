@@ -1,10 +1,9 @@
-name: Deploy
+name: Deploy For Development
 
 on:
-  pull_request:
+  push:
     branches:
       - develop
-    types: [closed]
 
 jobs:
   deploy:
@@ -22,7 +21,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASS }}
 
           script: |
-            cd ${{ secrets.SERVER_TEST_DEPLOY_DIR }}
-            git checkout develop
-            git fetch origin develop
-            git pull origin develop
+            cd ${{ secrets.SERVER_TEST_DEPLOY_DIR }} || exit 1
+            git checkout develop || exit 1
+            git fetch origin develop || exit 1
+            git pull origin develop || exit 1
