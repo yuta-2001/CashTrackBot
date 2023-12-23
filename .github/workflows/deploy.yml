@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - develop
+      - main
     types: [closed]
 
 jobs:
@@ -22,7 +23,14 @@ jobs:
           passphrase: ${{ secrets.SSH_PASS }}
 
           script: |
-            cd ${{ secrets.SERVER_TEST_DEPLOY_DIR }}
-            git checkout develop
-            git fetch origin develop
-            git pull origin develop
+            if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
+              cd ${{ secrets.SERVER_PROD_DEPLOY_DIR }}
+              git checkout main
+              git fetch origin main
+              git pull origin main
+            elif [[ $GITHUB_REF == 'refs/heads/develop' ]]; then
+              cd ${{ secrets.SERVER_TEST_DEPLOY_DIR }}
+              git checkout develop
+              git fetch origin develop
+              git pull origin develop
+            fi
