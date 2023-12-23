@@ -23,5 +23,5 @@ jobs:
 
           script: |
             cd ${{ secrets.SERVER_TEST_DEPLOY_DIR }}
-            git fetch origin main
-            git pull origin main
+            git fetch origin develop
+            git pull origin develop
