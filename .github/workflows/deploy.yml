@@ -7,7 +7,7 @@ on:
     types: [closed]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,5 +23,6 @@ jobs:
 
           script: |
             cd ${{ secrets.SERVER_TEST_DEPLOY_DIR }}
+            git checkout develop
             git fetch origin develop
             git pull origin develop
