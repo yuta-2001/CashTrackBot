@@ -1,11 +1,10 @@
 name: Deploy
 
 on:
-  pull_request:
+  push:
     branches:
-      - develop
       - main
-    types: [closed]
+      - develop
 
 jobs:
   deploy:
