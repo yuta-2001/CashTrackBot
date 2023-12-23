@@ -23,14 +23,17 @@ jobs:
           passphrase: ${{ secrets.SSH_PASS }}
 
           script: |
+            echo "Current branch: $GITHUB_REF"
             if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
-              cd ${{ secrets.SERVER_PROD_DEPLOY_DIR }}
-              git checkout main
-              git fetch origin main
-              git pull origin main
+              echo "Deploying to Production"
+              cd ${{ secrets.SERVER_PROD_DEPLOY_DIR }} || exit 1
+              git checkout main || exit 1
+              git fetch origin main || exit 1
+              git pull origin main || exit 1
             elif [[ $GITHUB_REF == 'refs/heads/develop' ]]; then
-              cd ${{ secrets.SERVER_TEST_DEPLOY_DIR }}
-              git checkout develop
-              git fetch origin develop
-              git pull origin develop
+              echo "Deploying to Test"
+              cd ${{ secrets.SERVER_TEST_DEPLOY_DIR }} || exit 1
+              git checkout develop || exit 1
+              git fetch origin develop || exit 1
+              git pull origin develop || exit 1
             fi
